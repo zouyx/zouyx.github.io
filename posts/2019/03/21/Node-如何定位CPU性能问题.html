@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Node-如何定位CPU性能问题 – Joe Zou – 世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="介绍Nodejs如何定位CPU性能问题。
+
+" />
+    <meta property="og:description" content="介绍Nodejs如何定位CPU性能问题。
+
+" />
+    
+    <meta name="author" content="Joe Zou" />
+
+    
+    <meta property="og:title" content="Node-如何定位CPU性能问题" />
+    <meta property="twitter:title" content="Node-如何定位CPU性能问题" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="Joe Zou - 世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊" href="/feed.xml" />
+    <link rel="shortcut icon" href="/favicon.ico"/>
+    <link rel="bookmark" href="/favicon.ico"/>
+    <meta name="baidu-site-verification" content="2Mdkttrz2v" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+    <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Node-如何定位CPU性能问题 | Joe Zou</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="Node-如何定位CPU性能问题" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="介绍Nodejs如何定位CPU性能问题。" />
+<meta property="og:description" content="介绍Nodejs如何定位CPU性能问题。" />
+<link rel="canonical" href="http://zouyx.github.io/posts/2019/03/21/Node-%E5%A6%82%E4%BD%95%E5%AE%9A%E4%BD%8DCPU%E6%80%A7%E8%83%BD%E9%97%AE%E9%A2%98.html" />
+<meta property="og:url" content="http://zouyx.github.io/posts/2019/03/21/Node-%E5%A6%82%E4%BD%95%E5%AE%9A%E4%BD%8DCPU%E6%80%A7%E8%83%BD%E9%97%AE%E9%A2%98.html" />
+<meta property="og:site_name" content="Joe Zou" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-03-21T00:00:00+08:00" />
+<script type="application/ld+json">
+{"description":"介绍Nodejs如何定位CPU性能问题。","@type":"BlogPosting","url":"http://zouyx.github.io/posts/2019/03/21/Node-%E5%A6%82%E4%BD%95%E5%AE%9A%E4%BD%8DCPU%E6%80%A7%E8%83%BD%E9%97%AE%E9%A2%98.html","headline":"Node-如何定位CPU性能问题","dateModified":"2019-03-21T00:00:00+08:00","datePublished":"2019-03-21T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://zouyx.github.io/posts/2019/03/21/Node-%E5%A6%82%E4%BD%95%E5%AE%9A%E4%BD%8DCPU%E6%80%A7%E8%83%BD%E9%97%AE%E9%A2%98.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+    <!-- Google Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-115938575-1', 'auto');
+	ga('send', 'pageview', { 'page': location.pathname + location.search + location.hash});
+	ga('set', 'anonymizeIp', true);
+    </script>
+    <!-- End Google Analytics -->
+    </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="https://avatars.githubusercontent.com/u/3828072?v=4&s=400" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">Joe Zou</a></h1>
+            <p class="site-description">世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</p>
+          </div>
+
+          <nav>
+            
+              <a href="/" title="Go to Blogs">Blogs</a>
+            
+              <a href="/projects" title="Go to Projects">Projects</a>
+            
+              <a href="/about" title="Go to About">About</a>
+            
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>Node-如何定位CPU性能问题</h1>
+
+  <div class="entry">
+    <p>介绍Nodejs如何定位CPU性能问题。</p>
+
+<h1 id="lets-go">Let‘s Go!</h1>
+<hr />
+
+<h2 id="1解决方案">1.解决方案</h2>
+
+<ul>
+  <li>使用<a href="https://github.com/hyj1991/easy-monitor">easymonitor</a>生成火焰图定位问题的方法堆栈并对其进行优化。</li>
+</ul>
+
+<h2 id="2场景">2.场景</h2>
+
+<p>在程序使用某个包／类库之后，出现高CPU使用率，高延迟。</p>
+
+<p>程序QPS：1</p>
+
+<h2 id="3问题现象">3.问题现象</h2>
+
+<p>如下图所示，3.14 21:00 发布第一次发布，之后重启过两次。</p>
+
+<p>第一次：3.15 10:00，在此次重启时没意识到根本原因。</p>
+
+<p>第二次：3.16 14:00，与此同时去除饮用的类库。</p>
+
+<h3 id="cpu监控信息">CPU监控信息</h3>
+
+<p><img src="/images/nodejscpu/cpuidle.png" alt="cpuidle" /></p>
+
+<h2 id="4问题分析">4.问题分析</h2>
+
+<h3 id="问题火焰图">问题火焰图</h3>
+
+<p>抽样指标：30s</p>
+
+<p><img src="/images/nodejscpu/before.png" alt="before" /></p>
+
+<h3 id="分析">分析</h3>
+
+<p>如图所示，问题点在于左下角中GC时间是总时间占比的大约20%</p>
+
+<p>通过代码走查发现，程序在截取借口uri的时候没把参数去除，导致在内存中频繁生成对象，导致频繁GC。</p>
+
+<h3 id="优化后">优化后</h3>
+
+<h3 id="优化后火焰图">优化后火焰图</h3>
+
+<p>抽样指标：30s</p>
+
+<p><img src="/images/nodejscpu/after.png" alt="after" /></p>
+
+<h3 id="分析-1">分析</h3>
+
+<p>明显看到左下角的GC时间大幅度减少。</p>
+
+<p>详见：<a href="https://github.com/SkyAPM/SkyAPM-nodejs/pull/71/files">https://github.com/SkyAPM/SkyAPM-nodejs/pull/71/files</a></p>
+
+<h2 id="参考">参考</h2>
+
+<p>SkyAPM-Nodejs：<a href="https://github.com/SkyAPM/SkyAPM-nodejs/issues/72">https://github.com/SkyAPM/SkyAPM-nodejs/issues/72</a></p>
+
+  </div>
+
+  <div>
+    <img src="/images/code.jpg"/>
+  </div>
+
+  <div class="date">
+    Written on March 21, 2019
+  </div>
+
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+<a href="mailto:joezou@apache.org"><i class="svg-icon email"></i></a>
+
+
+<a href="https://github.com/zouyx"><i class="svg-icon github"></i></a>
+
+<a href="https://www.linkedin.com/in/joe-zou-829b2981"><i class="svg-icon linkedin"></i></a>
+
+<a href="/feed.xml"><i class="svg-icon rss"></i></a>
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>

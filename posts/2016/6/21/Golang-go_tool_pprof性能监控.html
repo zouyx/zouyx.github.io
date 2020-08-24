@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Golang-go_tool_pprof性能监控 – Joe Zou – 世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="什么是go tool pprof性能监控？怎么用？以下会为你一一解答，还会和java工具对比哦。
+
+" />
+    <meta property="og:description" content="什么是go tool pprof性能监控？怎么用？以下会为你一一解答，还会和java工具对比哦。
+
+" />
+    
+    <meta name="author" content="Joe Zou" />
+
+    
+    <meta property="og:title" content="Golang-go_tool_pprof性能监控" />
+    <meta property="twitter:title" content="Golang-go_tool_pprof性能监控" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="Joe Zou - 世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊" href="/feed.xml" />
+    <link rel="shortcut icon" href="/favicon.ico"/>
+    <link rel="bookmark" href="/favicon.ico"/>
+    <meta name="baidu-site-verification" content="2Mdkttrz2v" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+    <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Golang-go_tool_pprof性能监控 | Joe Zou</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="Golang-go_tool_pprof性能监控" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="什么是go tool pprof性能监控？怎么用？以下会为你一一解答，还会和java工具对比哦。" />
+<meta property="og:description" content="什么是go tool pprof性能监控？怎么用？以下会为你一一解答，还会和java工具对比哦。" />
+<link rel="canonical" href="http://zouyx.github.io/posts/2016/6/21/Golang-go_tool_pprof%E6%80%A7%E8%83%BD%E7%9B%91%E6%8E%A7.html" />
+<meta property="og:url" content="http://zouyx.github.io/posts/2016/6/21/Golang-go_tool_pprof%E6%80%A7%E8%83%BD%E7%9B%91%E6%8E%A7.html" />
+<meta property="og:site_name" content="Joe Zou" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2016-06-21T00:00:00+08:00" />
+<script type="application/ld+json">
+{"description":"什么是go tool pprof性能监控？怎么用？以下会为你一一解答，还会和java工具对比哦。","@type":"BlogPosting","url":"http://zouyx.github.io/posts/2016/6/21/Golang-go_tool_pprof%E6%80%A7%E8%83%BD%E7%9B%91%E6%8E%A7.html","headline":"Golang-go_tool_pprof性能监控","dateModified":"2016-06-21T00:00:00+08:00","datePublished":"2016-06-21T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://zouyx.github.io/posts/2016/6/21/Golang-go_tool_pprof%E6%80%A7%E8%83%BD%E7%9B%91%E6%8E%A7.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+    <!-- Google Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-115938575-1', 'auto');
+	ga('send', 'pageview', { 'page': location.pathname + location.search + location.hash});
+	ga('set', 'anonymizeIp', true);
+    </script>
+    <!-- End Google Analytics -->
+    </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="https://avatars.githubusercontent.com/u/3828072?v=4&s=400" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">Joe Zou</a></h1>
+            <p class="site-description">世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</p>
+          </div>
+
+          <nav>
+            
+              <a href="/" title="Go to Blogs">Blogs</a>
+            
+              <a href="/projects" title="Go to Projects">Projects</a>
+            
+              <a href="/about" title="Go to About">About</a>
+            
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>Golang-go_tool_pprof性能监控</h1>
+
+  <div class="entry">
+    <p>什么是go tool pprof性能监控？怎么用？以下会为你一一解答，还会和java工具对比哦。</p>
+
+<h2 id="lets-go">Let’s Go!</h2>
+<hr />
+
+<h2 id="1结论">1.结论</h2>
+
+<ul>
+  <li>Golang 自带工具监控cpu，内存比较简单，并提供可视化界面。</li>
+  <li>学习成本较低。</li>
+  <li>推荐使用。</li>
+</ul>
+
+<h2 id="2是什么">2.是什么？</h2>
+
+<ul>
+  <li>用于量化go语言性能而存在的分析工具</li>
+  <li>使用可视化工具来分析服务器运行时生成的预定格式数据</li>
+  <li>多种数据分析图</li>
+  <li>golang package中自带的工具</li>
+</ul>
+
+<h2 id="3有什么种类">3.有什么种类？</h2>
+
+<ul>
+  <li>Heap Profile: 内存堆栈图，用于分析内存使用率</li>
+  <li>30-second CPU profile: 30s内的cpu使用率，包括GC时间占比</li>
+  <li>Goroutine Blocking Profile: goroutine的阻塞分析图，分析goroutine是否有泄漏</li>
+  <li>5-second executable trace: 收集5s 执行足迹</li>
+</ul>
+
+<h2 id="4怎么用">4.怎么用</h2>
+
+<h3 id="启动">启动</h3>
+
+<p>建立main方法并启动</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="k">import</span> <span class="p">(</span>
+	<span class="s">"net/http"</span>
+	<span class="n">_</span> <span class="s">"net/http/pprof"</span>
+<span class="p">)</span>
+
+<span class="k">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="k">go</span> <span class="k">func</span><span class="p">()</span> <span class="p">{</span>
+		<span class="n">http</span><span class="o">.</span><span class="n">ListenAndServe</span><span class="p">(</span><span class="s">"0.0.0.0:6060"</span><span class="p">,</span><span class="no">nil</span><span class="p">)</span>
+	<span class="p">}()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="图形化工具---graphviz">图形化工具 - graphviz</h3>
+
+<p>安装后，才能正常显示go的绘图，<a href="http://119.147.135.245/tech.down.sina.com.cn/20120204/a76dfa78/graphviz-2.28.0.msi?fn=&amp;ssig=JqViplY8Zw&amp;Expires=1465889507&amp;KID=sae,230kw3wk15&amp;ip=1465810307,125.88.149.36&amp;corp=1">下载地址</a></p>
+
+<h3 id="应用">应用</h3>
+
+<ol>
+  <li>cmd line</li>
+</ol>
+
+<ul>
+  <li>the heap profile : go tool pprof http://localhost:6060/debug/pprof/heap</li>
+  <li>30-second CPU profile : go tool pprof http://localhost:6060/debug/pprof/profile</li>
+  <li>goroutine blocking profile : go tool pprof http://localhost:6060/debug/pprof/block</li>
+</ul>
+
+<ol>
+  <li>website</li>
+</ol>
+
+<p>http://localhost:6060/debug/pprof</p>
+
+<h2 id="5内存监控">5.内存监控</h2>
+
+<h3 id="模拟程序">模拟程序</h3>
+<ol>
+  <li>启动监控程序</li>
+  <li>初始化并读取内存信息</li>
+  <li>循环分配大内存</li>
+  <li>再次读取内存信息</li>
+  <li>通过makeMem分配大内存</li>
+</ol>
+
+<p>如下图：</p>
+
+<p><img src="/images/gopprof/memMock.png" alt="memMock" /></p>
+
+<h3 id="结果">结果</h3>
+
+<p><img src="/images/gopprof/memResult.png" alt="memMock" /></p>
+
+<p>其中包含：内存分配信息 与 统计基本信息</p>
+
+<h4 id="如何阅读">如何阅读</h4>
+<ul>
+  <li>从上到下，最顶端为入口</li>
+  <li>方框：大：占用时间／资源比较多，小则与之相反</li>
+  <li>线条：粗：占用时间／资源比较多，小则与之相反</li>
+  <li>立方体：占用并没有释放的内存</li>
+</ul>
+
+<h2 id="6cpu监控">6.cpu监控</h2>
+
+<h3 id="模拟程序-1">模拟程序</h3>
+<ol>
+  <li>监听监控端口</li>
+  <li>goroutine斐波拉契数列</li>
+  <li>运行斐波拉契数列</li>
+</ol>
+
+<p>如下图：</p>
+
+<p><img src="/images/gopprof/cpuMock.png" alt="cpuMock" /></p>
+
+<h3 id="结果-1">结果</h3>
+
+<p><img src="/images/gopprof/cpuResult.png" alt="cpuResult" /></p>
+
+<p>其中包含：</p>
+
+<ul>
+  <li>占用cpu时间</li>
+  <li>调用链路</li>
+  <li>统计时长</li>
+  <li>runtime.morestack：申请栈空间</li>
+</ul>
+
+<h2 id="7与java对比">7.与java对比</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">对比项</th>
+      <th style="text-align: center">Golang</th>
+      <th style="text-align: center">Java</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">性能工具</td>
+      <td style="text-align: center">自带</td>
+      <td style="text-align: center">部分自带</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">GC信息</td>
+      <td style="text-align: center">设置环境变量并重启程序</td>
+      <td style="text-align: center">直接通过命令／打gc.log</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">堆栈信息</td>
+      <td style="text-align: center">侵入／清晰</td>
+      <td style="text-align: center">非侵入／清晰</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">CPU信息</td>
+      <td style="text-align: center">查看成本／要求较低</td>
+      <td style="text-align: center">查看成本／要求较高</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="8更多命令">8.更多命令</h2>
+<blockquote>
+  <p><a href="http://wiki.jikexueyuan.com/project/go-command-tutorial/0.12.html">http://wiki.jikexueyuan.com/project/go-command-tutorial/0.12.html</a></p>
+</blockquote>
+
+<h2 id="9参考资料">9.参考资料</h2>
+<blockquote>
+  <p><a href="http://studygolang.com/articles/2110">http://studygolang.com/articles/2110</a>
+<a href="https://segmentfault.com/a/1190000000501635">https://segmentfault.com/a/1190000000501635</a>
+<a href="http://www.cnblogs.com/yjf512/archive/2012/12/27/2835331.html">http://www.cnblogs.com/yjf512/archive/2012/12/27/2835331.html</a></p>
+</blockquote>
+
+  </div>
+
+  <div>
+    <img src="/images/code.jpg"/>
+  </div>
+
+  <div class="date">
+    Written on June 21, 2016
+  </div>
+
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+<a href="mailto:joezou@apache.org"><i class="svg-icon email"></i></a>
+
+
+<a href="https://github.com/zouyx"><i class="svg-icon github"></i></a>
+
+<a href="https://www.linkedin.com/in/joe-zou-829b2981"><i class="svg-icon linkedin"></i></a>
+
+<a href="/feed.xml"><i class="svg-icon rss"></i></a>
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>其他-服务端语言比较 – Joe Zou – 世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="Java，Golang有什么优劣？各位应该很清楚了，最近在接触nodejs，对这几门语言进行一下对比总结。
+
+" />
+    <meta property="og:description" content="Java，Golang有什么优劣？各位应该很清楚了，最近在接触nodejs，对这几门语言进行一下对比总结。
+
+" />
+    
+    <meta name="author" content="Joe Zou" />
+
+    
+    <meta property="og:title" content="其他-服务端语言比较" />
+    <meta property="twitter:title" content="其他-服务端语言比较" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="Joe Zou - 世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊" href="/feed.xml" />
+    <link rel="shortcut icon" href="/favicon.ico"/>
+    <link rel="bookmark" href="/favicon.ico"/>
+    <meta name="baidu-site-verification" content="2Mdkttrz2v" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+    <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>其他-服务端语言比较 | Joe Zou</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="其他-服务端语言比较" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Java，Golang有什么优劣？各位应该很清楚了，最近在接触nodejs，对这几门语言进行一下对比总结。" />
+<meta property="og:description" content="Java，Golang有什么优劣？各位应该很清楚了，最近在接触nodejs，对这几门语言进行一下对比总结。" />
+<link rel="canonical" href="http://zouyx.github.io/posts/2018/2/8/%E5%85%B6%E4%BB%96-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%AD%E8%A8%80%E6%AF%94%E8%BE%83.html" />
+<meta property="og:url" content="http://zouyx.github.io/posts/2018/2/8/%E5%85%B6%E4%BB%96-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%AD%E8%A8%80%E6%AF%94%E8%BE%83.html" />
+<meta property="og:site_name" content="Joe Zou" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-02-08T00:00:00+08:00" />
+<script type="application/ld+json">
+{"description":"Java，Golang有什么优劣？各位应该很清楚了，最近在接触nodejs，对这几门语言进行一下对比总结。","@type":"BlogPosting","url":"http://zouyx.github.io/posts/2018/2/8/%E5%85%B6%E4%BB%96-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%AD%E8%A8%80%E6%AF%94%E8%BE%83.html","headline":"其他-服务端语言比较","dateModified":"2018-02-08T00:00:00+08:00","datePublished":"2018-02-08T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://zouyx.github.io/posts/2018/2/8/%E5%85%B6%E4%BB%96-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%AD%E8%A8%80%E6%AF%94%E8%BE%83.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+    <!-- Google Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-115938575-1', 'auto');
+	ga('send', 'pageview', { 'page': location.pathname + location.search + location.hash});
+	ga('set', 'anonymizeIp', true);
+    </script>
+    <!-- End Google Analytics -->
+    </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="https://avatars.githubusercontent.com/u/3828072?v=4&s=400" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">Joe Zou</a></h1>
+            <p class="site-description">世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</p>
+          </div>
+
+          <nav>
+            
+              <a href="/" title="Go to Blogs">Blogs</a>
+            
+              <a href="/projects" title="Go to Projects">Projects</a>
+            
+              <a href="/about" title="Go to About">About</a>
+            
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>其他-服务端语言比较</h1>
+
+  <div class="entry">
+    <p>Java，Golang有什么优劣？各位应该很清楚了，最近在接触nodejs，对这几门语言进行一下对比总结。</p>
+
+<h2 id="lets-go">Let’s Go!</h2>
+<hr />
+
+<h2 id="java">Java</h2>
+
+<p>可说是我能用于生产的第一门语言。</p>
+
+<h3 id="简介">简介</h3>
+
+<p>Java是一门面向对象编程语言，不仅吸收了C++语言的各种优点，还摒弃了C++里难以理解的多继承、指针等概念，因此Java语言具有功能强大和简单易用两个特征。Java语言作为静态面向对象编程语言的代表，极好地实现了面向对象理论，允许程序员以优雅的思维方式进行复杂的编程。</p>
+
+<h2 id="golang">Golang</h2>
+
+<p>有了Java研究的基础上可以快速精通并能运用于生产的第二门语言。</p>
+
+<h3 id="简介-1">简介</h3>
+
+<p>Go语言是谷歌2009发布的第二款开源编程语言。Go语言专门针对多处理器系统应用程序的编程进行了优化，使用Go编译的程序可以媲美C或C++代码的速度，而且更加安全、支持并行进程。</p>
+
+<h2 id="nodejs">nodejs</h2>
+
+<p>对于我个人来说，我认为这不算是一门语言，更像一个VM，像JVM。</p>
+
+<h3 id="简介-2">简介</h3>
+
+<p>Node.js是一个基于Chrome JavaScript运行时建立的平台， 用于方便地搭建响应速度快、易于扩展的网络应用。Node.js 使用事件驱动， 非阻塞I/O 模型而得以轻量和高效，非常适合在分布式设备上运行数据密集型的实时应用。</p>
+
+<h2 id="对比">对比</h2>
+
+<p>说了那么久，我们弄个图表对比一下。</p>
+
+<h3 id="特性">特性</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>特性／语言</th>
+      <th style="text-align: center">java</th>
+      <th style="text-align: center">Golang</th>
+      <th style="text-align: center">nodejs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>语言类型</td>
+      <td style="text-align: center">强</td>
+      <td style="text-align: center">强</td>
+      <td style="text-align: center">弱（javascrpit）</td>
+    </tr>
+    <tr>
+      <td>社区</td>
+      <td style="text-align: center"><strong>强大</strong></td>
+      <td style="text-align: center">弱</td>
+      <td style="text-align: center">强？</td>
+    </tr>
+    <tr>
+      <td>多平台支持</td>
+      <td style="text-align: center"><strong>好</strong></td>
+      <td style="text-align: center">一般（需要跟平台编译）</td>
+      <td style="text-align: center"><strong>好</strong></td>
+    </tr>
+    <tr>
+      <td>并发实现</td>
+      <td style="text-align: center">线程级</td>
+      <td style="text-align: center"><strong>协程级</strong></td>
+      <td style="text-align: center">进程级？</td>
+    </tr>
+    <tr>
+      <td>易测试</td>
+      <td style="text-align: center">一般</td>
+      <td style="text-align: center"><strong>十分好</strong></td>
+      <td style="text-align: center">一般</td>
+    </tr>
+    <tr>
+      <td>应用场景</td>
+      <td style="text-align: center">CPU密集型</td>
+      <td style="text-align: center">CPU密集型</td>
+      <td style="text-align: center">IO密集型</td>
+    </tr>
+  </tbody>
+</table>
+
+  </div>
+
+  <div>
+    <img src="/images/code.jpg"/>
+  </div>
+
+  <div class="date">
+    Written on February  8, 2018
+  </div>
+
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+<a href="mailto:joezou@apache.org"><i class="svg-icon email"></i></a>
+
+
+<a href="https://github.com/zouyx"><i class="svg-icon github"></i></a>
+
+<a href="https://www.linkedin.com/in/joe-zou-829b2981"><i class="svg-icon linkedin"></i></a>
+
+<a href="/feed.xml"><i class="svg-icon rss"></i></a>
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>

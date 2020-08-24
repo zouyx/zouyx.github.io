@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>架构-快速构建一个搜索系统 – Joe Zou – 世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="快谈如何快速构建一个简单的搜索系统，话不多说，马上开始。
+
+" />
+    <meta property="og:description" content="快谈如何快速构建一个简单的搜索系统，话不多说，马上开始。
+
+" />
+    
+    <meta name="author" content="Joe Zou" />
+
+    
+    <meta property="og:title" content="架构-快速构建一个搜索系统" />
+    <meta property="twitter:title" content="架构-快速构建一个搜索系统" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="Joe Zou - 世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊" href="/feed.xml" />
+    <link rel="shortcut icon" href="/favicon.ico"/>
+    <link rel="bookmark" href="/favicon.ico"/>
+    <meta name="baidu-site-verification" content="2Mdkttrz2v" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+    <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>架构-快速构建一个搜索系统 | Joe Zou</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="架构-快速构建一个搜索系统" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="快谈如何快速构建一个简单的搜索系统，话不多说，马上开始。" />
+<meta property="og:description" content="快谈如何快速构建一个简单的搜索系统，话不多说，马上开始。" />
+<link rel="canonical" href="http://zouyx.github.io/posts/2018/1/19/%E6%9E%B6%E6%9E%84-%E5%BF%AB%E9%80%9F%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%90%9C%E7%B4%A2%E7%B3%BB%E7%BB%9F.html" />
+<meta property="og:url" content="http://zouyx.github.io/posts/2018/1/19/%E6%9E%B6%E6%9E%84-%E5%BF%AB%E9%80%9F%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%90%9C%E7%B4%A2%E7%B3%BB%E7%BB%9F.html" />
+<meta property="og:site_name" content="Joe Zou" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-01-19T00:00:00+08:00" />
+<script type="application/ld+json">
+{"description":"快谈如何快速构建一个简单的搜索系统，话不多说，马上开始。","@type":"BlogPosting","url":"http://zouyx.github.io/posts/2018/1/19/%E6%9E%B6%E6%9E%84-%E5%BF%AB%E9%80%9F%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%90%9C%E7%B4%A2%E7%B3%BB%E7%BB%9F.html","headline":"架构-快速构建一个搜索系统","dateModified":"2018-01-19T00:00:00+08:00","datePublished":"2018-01-19T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://zouyx.github.io/posts/2018/1/19/%E6%9E%B6%E6%9E%84-%E5%BF%AB%E9%80%9F%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%90%9C%E7%B4%A2%E7%B3%BB%E7%BB%9F.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+    <!-- Google Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-115938575-1', 'auto');
+	ga('send', 'pageview', { 'page': location.pathname + location.search + location.hash});
+	ga('set', 'anonymizeIp', true);
+    </script>
+    <!-- End Google Analytics -->
+    </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="https://avatars.githubusercontent.com/u/3828072?v=4&s=400" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">Joe Zou</a></h1>
+            <p class="site-description">世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</p>
+          </div>
+
+          <nav>
+            
+              <a href="/" title="Go to Blogs">Blogs</a>
+            
+              <a href="/projects" title="Go to Projects">Projects</a>
+            
+              <a href="/about" title="Go to About">About</a>
+            
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>架构-快速构建一个搜索系统</h1>
+
+  <div class="entry">
+    <p>快谈如何快速构建一个简单的搜索系统，话不多说，马上开始。</p>
+
+<h2 id="lets-go">Let‘s Go!</h2>
+<hr />
+
+<h1 id="背景">背景</h1>
+
+<p>为什么要构建一个搜索系统？最主要是解决什么问题？用户打开你的网站，没有一个搜索功能，不能从你的网站中快速的找到想要的信息，可能用户很容易就会流失掉。在搜索的时候，大部分用户都最多只知道自己想要大体信息，如：在想买饼干的时候，查找“饼干”，搜索系统就是需要猜测用户想要的是什么，然后把系统里面存在的信息与用户想查找的信息进行匹配之后。得到结果再返回给用户的一个系统。通过这个你来我往的交流过程之后，用户可能会对系统产生信任感，从而把用户留住。</p>
+
+<h1 id="系统架构">系统架构</h1>
+
+<p><img src="/images/search/SearchStruct.jpg" alt="struct" /></p>
+
+<p>优点：</p>
+<ul>
+  <li>可搜索数据与原业务数据进行了解耦</li>
+  <li>可快速地扩展搜索系统的各组件。</li>
+  <li>只需由四个组件（<strong>图中实线的组件</strong>）即可快速地实现，实现第一期即可快速上线</li>
+  <li>支持多地部署。</li>
+</ul>
+
+<p>缺点：</p>
+<ul>
+  <li>数据更新有一定延迟（后期可通过 <strong>即时数据异步更新</strong> 解决）</li>
+  <li>同步服务需要人工维护（后期可通过增加 <strong>同步服务管理系统</strong> 解决）</li>
+</ul>
+
+<h2 id="系统功能实现顺序推荐">系统功能实现顺序推荐</h2>
+
+<h3 id="第一期">第一期</h3>
+
+<ul>
+  <li>业务数据访问接入</li>
+  <li>数据初始化</li>
+  <li>定期同步数据更新</li>
+</ul>
+
+<h3 id="第二期">第二期</h3>
+
+<ul>
+  <li>服务监控</li>
+  <li>日志监控</li>
+</ul>
+
+<h3 id="第三期">第三期</h3>
+
+<ul>
+  <li>即时数据异步更新</li>
+  <li>数据监控及管理服务</li>
+</ul>
+
+<h3 id="后续扩展">后续扩展</h3>
+
+<ul>
+  <li>大数据推荐与搜索结果混合展示</li>
+</ul>
+
+<h1 id="最后">最后</h1>
+
+<p>服务框架是随着业务发展不断演变的，我们会有1.0、1.5和2.0架构的迭代。要前瞻性地谋划和实施，要考虑未来三年、五年的容量。有一些系统瓶颈可能是要提前解决的，每一个场景不一样，根据特定的场景选择最合适的方案。</p>
+
+  </div>
+
+  <div>
+    <img src="/images/code.jpg"/>
+  </div>
+
+  <div class="date">
+    Written on January 19, 2018
+  </div>
+
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+<a href="mailto:joezou@apache.org"><i class="svg-icon email"></i></a>
+
+
+<a href="https://github.com/zouyx"><i class="svg-icon github"></i></a>
+
+<a href="https://www.linkedin.com/in/joe-zou-829b2981"><i class="svg-icon linkedin"></i></a>
+
+<a href="/feed.xml"><i class="svg-icon rss"></i></a>
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>

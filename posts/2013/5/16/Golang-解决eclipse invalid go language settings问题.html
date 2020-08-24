@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Golang-解决eclipse invalid go language settings问题 – Joe Zou – 世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="解决eclipse invalid go language settings问题思路
+
+" />
+    <meta property="og:description" content="解决eclipse invalid go language settings问题思路
+
+" />
+    
+    <meta name="author" content="Joe Zou" />
+
+    
+    <meta property="og:title" content="Golang-解决eclipse invalid go language settings问题" />
+    <meta property="twitter:title" content="Golang-解决eclipse invalid go language settings问题" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="Joe Zou - 世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊" href="/feed.xml" />
+    <link rel="shortcut icon" href="/favicon.ico"/>
+    <link rel="bookmark" href="/favicon.ico"/>
+    <meta name="baidu-site-verification" content="2Mdkttrz2v" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+    <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Golang-解决eclipse invalid go language settings问题 | Joe Zou</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="Golang-解决eclipse invalid go language settings问题" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="解决eclipse invalid go language settings问题思路" />
+<meta property="og:description" content="解决eclipse invalid go language settings问题思路" />
+<link rel="canonical" href="http://zouyx.github.io/posts/2013/5/16/Golang-%E8%A7%A3%E5%86%B3eclipse%20invalid%20go%20language%20settings%E9%97%AE%E9%A2%98.html" />
+<meta property="og:url" content="http://zouyx.github.io/posts/2013/5/16/Golang-%E8%A7%A3%E5%86%B3eclipse%20invalid%20go%20language%20settings%E9%97%AE%E9%A2%98.html" />
+<meta property="og:site_name" content="Joe Zou" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2013-05-16T00:00:00+08:00" />
+<script type="application/ld+json">
+{"description":"解决eclipse invalid go language settings问题思路","@type":"BlogPosting","url":"http://zouyx.github.io/posts/2013/5/16/Golang-%E8%A7%A3%E5%86%B3eclipse%20invalid%20go%20language%20settings%E9%97%AE%E9%A2%98.html","headline":"Golang-解决eclipse invalid go language settings问题","dateModified":"2013-05-16T00:00:00+08:00","datePublished":"2013-05-16T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://zouyx.github.io/posts/2013/5/16/Golang-%E8%A7%A3%E5%86%B3eclipse%20invalid%20go%20language%20settings%E9%97%AE%E9%A2%98.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+    <!-- Google Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-115938575-1', 'auto');
+	ga('send', 'pageview', { 'page': location.pathname + location.search + location.hash});
+	ga('set', 'anonymizeIp', true);
+    </script>
+    <!-- End Google Analytics -->
+    </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="https://avatars.githubusercontent.com/u/3828072?v=4&s=400" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">Joe Zou</a></h1>
+            <p class="site-description">世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</p>
+          </div>
+
+          <nav>
+            
+              <a href="/" title="Go to Blogs">Blogs</a>
+            
+              <a href="/projects" title="Go to Projects">Projects</a>
+            
+              <a href="/about" title="Go to About">About</a>
+            
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>Golang-解决eclipse invalid go language settings问题</h1>
+
+  <div class="entry">
+    <p>解决eclipse invalid go language settings问题思路</p>
+
+<h1 id="lets-go">Let‘s Go!</h1>
+<hr />
+
+<h2 id="打开eclipse">打开eclipse</h2>
+
+<h2 id="创建一个新的go项目">创建一个新的Go项目</h2>
+<p>File-&gt;New-&gt;Go Project</p>
+
+<h2 id="选择-configure-go-settings">选择 Configure Go Settings</h2>
+<p><img src="/images/goLanguageSettings/1.jpg" alt="1" /></p>
+
+<h2 id="配置go安装目录到go-root">配置Go安装目录到Go Root</h2>
+
+<p><img src="/images/goLanguageSettings/2.jpg" alt="2" /></p>
+
+<h2 id="配置完之后出现go的目录就可以了">配置完之后出现go的目录就可以了</h2>
+
+<p><img src="/images/goLanguageSettings/3.png" alt="3" /></p>
+
+
+  </div>
+
+  <div>
+    <img src="/images/code.jpg"/>
+  </div>
+
+  <div class="date">
+    Written on May 16, 2013
+  </div>
+
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+<a href="mailto:joezou@apache.org"><i class="svg-icon email"></i></a>
+
+
+<a href="https://github.com/zouyx"><i class="svg-icon github"></i></a>
+
+<a href="https://www.linkedin.com/in/joe-zou-829b2981"><i class="svg-icon linkedin"></i></a>
+
+<a href="/feed.xml"><i class="svg-icon rss"></i></a>
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>

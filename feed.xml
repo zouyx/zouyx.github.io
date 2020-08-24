@@ -1,0 +1,913 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.6">Jekyll</generator><link href="http://zouyx.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="http://zouyx.github.io/" rel="alternate" type="text/html" /><updated>2020-08-24T13:52:00+08:00</updated><id>http://zouyx.github.io/feed.xml</id><title type="html">Joe Zou</title><subtitle>世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</subtitle><entry><title type="html">dubbo-go 中如何实现路由规则功能</title><link href="http://zouyx.github.io/posts/2020/03/30/dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%B7%AF%E7%94%B1%E8%A7%84%E5%88%99%E5%8A%9F%E8%83%BD.html" rel="alternate" type="text/html" title="dubbo-go 中如何实现路由规则功能" /><published>2020-03-31T00:00:00+08:00</published><updated>2020-03-31T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2020/03/30/Golang-dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%B7%AF%E7%94%B1%E7%AD%96%E7%95%A5%E5%8A%9F%E8%83%BD</id><content type="html" xml:base="http://zouyx.github.io/posts/2020/03/30/dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%B7%AF%E7%94%B1%E8%A7%84%E5%88%99%E5%8A%9F%E8%83%BD.html">&lt;p&gt;dubbo-go 中如何实现路由规则功能&lt;/p&gt;
+
+&lt;h1 id=&quot;lets-go&quot;&gt;Let‘s Go!&lt;/h1&gt;
+&lt;hr /&gt;
+
+&lt;p&gt;最近在 Apache/dubbo-go（以下简称 dubbo-go ）社区中，路由规则突然成了呼声最高的功能之一。那到底为什么需要路由规则？&lt;/p&gt;
+
+&lt;p&gt;先路由规则需要实现的功能：&lt;/p&gt;
+
+&lt;p&gt;路由规则（ routing rule ）是为了改变网络流量所经过的途径而修改路由信息的技术，主要通过改变路由属性（包括可达性）来实现。在发起一次 RPC 调用前起到过滤目标服务器地址的作用，过滤后的地址列表，将作为消费端最终发起 RPC 调用的备选地址。&lt;/p&gt;
+
+&lt;p&gt;试想该下场景：使用 dubbo-go 在生产环境上，排除预发布机。使用路由规则实现不是很合适吗？&lt;/p&gt;
+
+&lt;p&gt;虽然知道了路由规则需要实现什么功能，但还不足以实现一个完整的路由规则功能。除此之外，还需要知道如何方便的管理路由规则。&lt;/p&gt;
+
+&lt;h1 id=&quot;目标&quot;&gt;目标&lt;/h1&gt;
+
+&lt;p&gt;综上所述，可以总结出以下 &lt;strong&gt;目标&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;支持方便扩展路由规则的配置；&lt;/li&gt;
+  &lt;li&gt;可以方便的管理路由规则配置，如支持本地与远程配置中心管理；&lt;/li&gt;
+  &lt;li&gt;与 Dubbo 现有的配置中心内的路由规则配置文件兼容，降低在新增语言栈的学习及使用成本；&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;路由规则设计&quot;&gt;路由规则设计&lt;/h1&gt;
+
+&lt;p&gt;在设计之初，首先要考虑的是路由规则应该放在整个服务治理周期的哪个阶段呢？&lt;/p&gt;
+
+&lt;p&gt;有些读者可能会有点困惑，我连架构图都不知道，如何考虑在哪个阶段？不怕，下图马上给你解惑。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/dubbogo/router/dubbo-go-arch.png&quot; alt=&quot;dubbo-go-arch.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;可以看到图中的 Router 就是路由规则插入的位置，目前路由规则主要用于控制 Consumer 到 Provider 之间的网络流量的路由路径。&lt;/p&gt;
+
+&lt;p&gt;除此之外，还有几个问题是需要优先考虑：&lt;/p&gt;
+
+&lt;p&gt;1.需要什么功能？&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;通过配置信息生成路由规则，包括：读取并解析本地配置文件，读取并解析配置中心的配置。以责任链模式串联起来。&lt;/li&gt;
+  &lt;li&gt;通过路由规则，匹配本地信息与远端服务信息，过滤出可以调用的远端节点，再进行负载均衡。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;2.如何设计接口？&lt;/p&gt;
+
+&lt;p&gt;通过第一点，我们能设计出以下接口来实现所需的功能。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;路由规则接口：用于路由规则过滤出可以调用的远端节点。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;路由规则责任链接口：允许执行多个路由规则。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;配置信息生成路由规则接口：解析内部配置信息（common.URL）生成对应的路由规则。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;配置文件生成路由规则接口：解析配置文件生成对应的路由规则。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;3.如何实现本地与远程路由规则配置加载？&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;本地路由规则配置：在原配置加载阶段，新增读取路由配置文件。使用 &lt;code class=&quot;highlighter-rouge&quot;&gt;FIleRouterFactory&lt;/code&gt; 解析后，生成对应路由规则，放置到内存中备用。&lt;/li&gt;
+  &lt;li&gt;远程路由规则配置：在 zookeeper 注册并监听静态资源目录后。读取静态资源，筛选符合路由规则配置信息，通过 &lt;code class=&quot;highlighter-rouge&quot;&gt;RouterFactory&lt;/code&gt; 生成对应路由规则，放置到内存中备用。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;router&quot;&gt;Router&lt;/h2&gt;
+&lt;p&gt;匹配及过滤远程实例的路由规则。
+&lt;img src=&quot;/images/dubbogo/router/router.png&quot; alt=&quot;router.png&quot; /&gt;
+目前已有实现类包括：&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;listenableRouter:&lt;/li&gt;
+  &lt;li&gt;AppRouter：&lt;/li&gt;
+  &lt;li&gt;ConditionRouter：&lt;/li&gt;
+  &lt;li&gt;HealthCheckRouter:&lt;/li&gt;
+  &lt;li&gt;FileConditionRouter:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;routerchain&quot;&gt;RouterChain&lt;/h2&gt;
+&lt;p&gt;执行多个路由规则的责任链。
+&lt;img src=&quot;/images/dubbogo/router/router-chain.png&quot; alt=&quot;router-chain.png&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;filerouterfactory&quot;&gt;FIleRouterFactory&lt;/h2&gt;
+&lt;p&gt;生成解析配置文件生成路由规则的工厂类。
+&lt;img src=&quot;/images/dubbogo/router/file-router-factory.png&quot; alt=&quot;file-router-factory.png&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;routerfactory&quot;&gt;RouterFactory&lt;/h2&gt;
+&lt;p&gt;通过配置信息生成路由规则的工厂类。
+&lt;img src=&quot;/images/dubbogo/router/router-factory.png&quot; alt=&quot;router-factory.png&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;实现&quot;&gt;实现&lt;/h1&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/dubbogo/router/router-design.png&quot; alt=&quot;router-design.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;实现路由规则以兼容 dubbo 为首要目标，降低使用者的学习成本为辅助目标。与配置中心模块相结合，实现路由规则远程统一管理与下发。&lt;/p&gt;
+
+&lt;h2 id=&quot;规则类型&quot;&gt;规则类型&lt;/h2&gt;
+
+&lt;p&gt;下面先来介绍一下有哪些具体的路由规则实现。&lt;/p&gt;
+
+&lt;h3 id=&quot;条件路由&quot;&gt;&lt;strong&gt;条件路由&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;dubbo-go 中第一个支持的路由规则，允许用户通过配置文件及配置中心管理路由规则。&lt;/p&gt;
+
+&lt;p&gt;与之相似的一个概念是 dubbo-go 里面的 group 概念，但是条件路由提供了更加细粒度的控制手段和更加丰富的表达语义。比较典型的使用场景是黑白名单设置，灰度以及测试等。&lt;/p&gt;
+
+&lt;h3 id=&quot;健康检查路由&quot;&gt;&lt;strong&gt;健康检查路由&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;在 RPC 调用中，我们希望尽可能地将请求命中到那些处理能力快、处于健康状态的实例，该路由的功能就是通过某种策略断定某个实例不健康，并将其排除在候选调用列表，优先调用那些健康的实例。这里的”健康”可以是我们自己定义的状态，默认实现即当错误比例到达某一个阈值时或者请求活跃数大于上限则认为其不健康，允许用户扩展健康检测策略。&lt;/p&gt;
+
+&lt;p&gt;在我们服务治理里面，核心的问题其实就在于如何判断一个实例是否可用。无论是负载均衡、&lt;/p&gt;
+
+&lt;p&gt;熔断还是限流，都是对这个问题的解答。所以，这个 feature 是一个很好的尝试。因为我们接下来计划提供的特性，基于规则的限流以及动态限流，都是要解决 “如何断定一个实例是否可用” 这么一个问题。&lt;/p&gt;
+
+&lt;p&gt;所以欢迎大家使用这个特性，并向社区反馈各自设定的健康指标。这对我们接下来的工作会有很大的帮助。&lt;/p&gt;
+
+&lt;h3 id=&quot;标签路由&quot;&gt;&lt;strong&gt;标签路由&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;以 Provider 为维度，通过将某一个或多个服务的提供者划分到同一个分组，约束流量只在指定分组中流转，从而实现流量隔离的目的，可以作为蓝绿发布、灰度发布等场景的能力基础。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;静态打标：根据配置文件所配置的标签，固定给 Provider 设置标签。&lt;/li&gt;
+  &lt;li&gt;动态打标：基于健康检查路由，根据服务不同时刻，不同状态，动态在 Provider 设置适合的标签。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;分析&quot;&gt;分析&lt;/h2&gt;
+
+&lt;p&gt;接着，以条件路由在 zookeeper 实现为例，对服务提供者与服务消费者进行整体流程分析。&lt;/p&gt;
+
+&lt;h3 id=&quot;如何配置条件路由规则&quot;&gt;如何配置条件路由规则&lt;/h3&gt;
+
+&lt;p&gt;配置条件路由规则既可以通过本地配置文件也能通过远程配置中心进行配置，配置生效流程都是：配置文件 =&amp;gt; dubbo 内部协议 =&amp;gt; 缓存至应用级内存 =&amp;gt; 过滤出可调用节点。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;dubbo-admin&lt;/strong&gt; 【服务治理/条件路由】增加路由规则配置，zookeeper 中会自动生成其对应配置节点，内容均为 &lt;strong&gt;dubbo-admin&lt;/strong&gt; 中设置的配置。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;全局配置&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;对应应用级全局路由规则配置。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;/dubbo/config/dubbo/user-info-server（应用名）.condition-router
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;应用名：只对 user-info-server 应用生效
+.condition-router: 路由类型。除此之外，还有 .tag-router 表示标签路由。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;服务配置&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;对应服务级所有路由规则配置。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;/dubbo/ com.ikurento.user.UserProvider（服务名） /routers
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;服务名：只对 com.ikurento.user.UserProvider 服务生效。&lt;/p&gt;
+
+&lt;h2 id=&quot;实现-router&quot;&gt;实现 Router&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/dubbogo/router/router-route.png&quot; alt=&quot;router-route.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;以下为必须实现的方法，以下方法用于获取过滤服务端节点配置。&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Route: 根据配置，调用节点与被调用节点，过滤出可调用节点。&lt;/li&gt;
+  &lt;li&gt;Priority: 路由规则优先级，需要是个正整数。&lt;/li&gt;
+  &lt;li&gt;URL: 通过路由规则转换出来的 dubbo 内部协议。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;更多实现参考：&lt;/p&gt;
+
+&lt;p&gt;路由规则：&lt;a href=&quot;https://github.com/apache/dubbo-go/tree/master/cluster/router/condition&quot;&gt;https://github.com/apache/dubbo-go/tree/master/cluster/router/condition&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;其中包含监听配置中心实现：&lt;a href=&quot;https://github.com/apache/dubbo-go/blob/master/cluster/router/condition/listenable_router.go&quot;&gt;https://github.com/apache/dubbo-go/blob/master/cluster/router/condition/listenable_router.go&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;使用方法&quot;&gt;使用方法&lt;/h1&gt;
+
+&lt;p&gt;经过上面设计与实现的分析，大概也能猜测到如何使用：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/dubbogo/router/router-import.png&quot; alt=&quot;router-import.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;如图所示，使用路由规则并不复杂，只需要把对应的依赖引入进来。在包初始化的时候，会创建出来对应的路由规则的实现。比如说加载条件路由、健康检测路由或者标签作为路由规则：&lt;/p&gt;
+
+&lt;h2 id=&quot;本地路由规则配置&quot;&gt;本地路由规则配置&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;_ &quot;github.com/apache/dubbo-go/cluster/router/condition&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;仅仅引用依赖包还不直接使用，还需要配置指定的配置文件： &lt;strong&gt;&lt;em&gt;router_config.yml&lt;/em&gt;&lt;/strong&gt; ，内容如下:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# dubbo router yaml configure file
+priority: 1
+force: true
+conditions : [&quot;host = 1.1.1.1 =&amp;gt; host = 192.168.199.214&quot;]
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;更多配置方式：&lt;a href=&quot;http://dubbo.apache.org/zh-cn/docs/user/demos/routing-rule.html&quot;&gt;条件路由配置&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;配置中心配置&quot;&gt;配置中心配置&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;_ &quot;github.com/apache/dubbo-go/config_center/zookeeper&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;目前仅支持 zookeeper 配置中心，与 dubbo-admin 结合即可使用。配置方式如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/dubbogo/router/dubbo-admin-1.png&quot; alt=&quot;dubbo-admin-1.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/dubbogo/router/dubbo-admin-2.png&quot; alt=&quot;dubbo-admin-2.png&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;总结&quot;&gt;总结&lt;/h1&gt;
+
+&lt;p&gt;更加具体的实现，我就不详细论述，大家可以去看源码，欢迎大家持续关注，或者贡献代码。&lt;/p&gt;
+
+&lt;p&gt;整个路由规则功能，已经能跟上 dubbo 2.7.x 版本，已经支持本地及远端路由规则配置管理。从扩展性来说，是比较便利。目前已经支持条件路由、标签路由与健康检测路由，虽然能满足基本使用场景，距离完善还有还长远的路。&lt;/p&gt;
+
+&lt;p&gt;未来计划：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;更多的配置中心支持，理论上已经支持，但还没测试。&lt;/li&gt;
+  &lt;li&gt;service-router（未支持）&lt;/li&gt;
+  &lt;li&gt;标签路由-配置中心（未支持）&lt;/li&gt;
+  &lt;li&gt;目前路由与配置中心结合的代码，对新增路由规则并不友好，有一定接入成本。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;欢迎大家关注或者贡献代码，&lt;a href=&quot;https://github.com/apache/dubbo-go&quot;&gt;https://github.com/apache/dubbo-go&lt;/a&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">dubbo-go 中如何实现路由规则功能</summary></entry><entry><title type="html">dubbo-go 中如何实现远程配置管理</title><link href="http://zouyx.github.io/posts/2020/01/17/dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%BF%9C%E7%A8%8B%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86.html" rel="alternate" type="text/html" title="dubbo-go 中如何实现远程配置管理" /><published>2020-01-17T00:00:00+08:00</published><updated>2020-01-17T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2020/01/17/Golang-dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%BF%9C%E7%A8%8B%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86</id><content type="html" xml:base="http://zouyx.github.io/posts/2020/01/17/dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%BF%9C%E7%A8%8B%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86.html">&lt;p&gt;dubbo-go 中如何实现远程配置管理&lt;/p&gt;
+
+&lt;h1 id=&quot;lets-go&quot;&gt;Let‘s Go!&lt;/h1&gt;
+&lt;hr /&gt;
+
+&lt;p&gt;之前在 Apache/dubbo-go（以下简称 dubbo-go ）社区中，有同学希望配置文件不仅可以放于本地，还可以放于配置管理中心里。那么，放在本地和配置管理中心究竟有哪些不一样呢？&lt;/p&gt;
+
+&lt;p&gt;放在本地，每次更新需要重启，配置文件管理困难，无法做到实时更新即刻生效。此外，本地文件还依赖人工版本控制，在微服务的场景下，大大的增加了运维的成本与难度。&lt;/p&gt;
+
+&lt;p&gt;而配置管理中心提供了统一的配置文件管理，支持文件更新、实时同步、统一版本控制、权限管理等功能。&lt;/p&gt;
+
+&lt;h1 id=&quot;目标&quot;&gt;目标&lt;/h1&gt;
+
+&lt;p&gt;基于以上几个背景，可以总结出以下 &lt;strong&gt;目标&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;与 Dubbo 现有的配置中心内的配置文件兼容，降低新增语言栈的学习成本；&lt;/li&gt;
+  &lt;li&gt;支持多种配置文件格式；&lt;/li&gt;
+  &lt;li&gt;支持主流配置中心，适应不一样的使用场景，实现高扩展的配置下发；&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;配置中心&quot;&gt;配置中心&lt;/h1&gt;
+
+&lt;p&gt;配置中心在 dubbo-go 中主要承担以下场景的职责：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;作为外部化配置中心，即存储 dubbo.properties 配置文件，此时，key 值通常为文件名如 dubbo.properties , value 则为配置文件内容。&lt;/li&gt;
+  &lt;li&gt;存储单个配置项，如各种开关项、常量值等。&lt;/li&gt;
+  &lt;li&gt;存储服务治理规则，此时 key 通常按照 “服务名 + 规则类型” 的格式来组织，而 value 则为具体的治理规则。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;dubbo-go 应支持 dubbo 中所有支持的各种开源配置中心，包括：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/ctripcorp/apollo&quot;&gt;Apollo&lt;/a&gt; ：携程框架部门研发的分布式配置中心，能够集中化管理应用不同环境、不同集群的配置，配置修改后能够实时推送到应用端，并且具备规范的权限、流程治理等特性，适用于微服务配置管理场景。&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/apache/zookeeper&quot;&gt;zookeeper&lt;/a&gt; ：一个分布式的，开放源码的分布式应用程序协调服务，是 Google 的 Chubby 一个开源的实现，是 Hadoop 和 Hbase 的重要组件。它是一个为分布式应用提供一致性服务的软件，提供的功能包括：配置维护、域名服务、分布式同步、组服务等。&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/alibaba/nacos&quot;&gt;nacos&lt;/a&gt; : Alibaba 开源的配置管理组件，提供了一组简单易用的特性集，帮助您实现动态服务发现、服务配置管理、服务及流量管理。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;而考虑到某些公司内部有自身的研发的配置中心，又或者当前流行而 Dubbo 尚未支持的配置中心，如 etcd，我们的核心在于设计一套机制，允许我们，也包括用户，可以通过扩展接口新的实现，来快速接入不同的配置中心。&lt;/p&gt;
+
+&lt;p&gt;那在 dubbo-go 中究竟怎么实现呢？我们的答案是：基于动态的插件机制在启动时按需加载配置中心的不同实现。&lt;/p&gt;
+
+&lt;p&gt;实现该部分功能放置于一个独立的子项目中，见：&lt;a href=&quot;https://github.com/apache/dubbo-go/tree/master/config_center&quot;&gt;https://github.com/apache/dubbo-go/tree/master/config_center&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;dubbo-go设计&quot;&gt;dubbo-go设计&lt;/h2&gt;
+
+&lt;p&gt;原逻辑为：启动时读取本地配置文件，将其加载进内存，通过配置文件中的配置读取注册中心的信息获取服务提供者，注册服务消费者。&lt;/p&gt;
+
+&lt;p&gt;有些读者会有点困惑，不是说好了使用配置中心的，为什么现在又要读取本地配置呢？答案就是，读取的这部分信息分成两部分：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;使用什么作为配置中心；&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;该配置中心的元数据，比如说使用 zookeeper 作为配置中心，那么 zookeeper 的链接信息就是元数据，毕竟我们只有在知道了链接信息之后才能连上 zookeeper；&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;在改造的时候，需要考虑以下的问题：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;如何实现支持多个配置中心？如何实现按需加载？&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;通过抽象 &lt;code class=&quot;highlighter-rouge&quot;&gt;DynamicConfiguration&lt;/code&gt; 让开发者可以快速支持多个配置中心。&lt;/p&gt;
+
+&lt;p&gt;使用者导入指定的组件包后，在启动阶段将需要的组件加载进内存中，以便给程序按需调用，如下图绿色部分。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;配置中心的配置加载阶段在什么时候？&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;应在读取配置文件阶段后，读取并解析本地配置文件中配置中心信息。初始化配置中心链接，读取 /dubbo/config/dubbo/dubbo.properties 与 /dubbo/config/dubbo/应用名/dubbo.properties ，并将其加载到内存之中覆盖原有配置，监听其变更，实时更新至内存，如下图蓝色部分。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/images/dubbogo/configcenter/configcenter-class.jpg&quot;&gt;&lt;img src=&quot;/images/dubbogo/configcenter/configcenter-class.jpg&quot; alt=&quot;configCenterClass&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;configcenterfactory&quot;&gt;ConfigCenterFactory&lt;/h3&gt;
+
+&lt;p&gt;使用者加载对应配置中心模块后，在初始化阶段加入各配置中心模块往其中注册其初始化类。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/images/dubbogo/configcenter/configCenterFactory.png&quot;&gt;&lt;img src=&quot;/images/dubbogo/configcenter/configCenterFactory.png&quot; alt=&quot;configCenterFactory&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;dynamicconfigurationfactory&quot;&gt;DynamicConfigurationFactory&lt;/h3&gt;
+
+&lt;p&gt;整个动态配置中心的关键点就在 DynamicConfigurationFactory 上，其中通过解析内部自定义的 URL ，获取其协议类型，反射其参数，用于创建配置中心的链接。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/images/dubbogo/configcenter/configurationFactory.png&quot;&gt;&lt;img src=&quot;/images/dubbogo/configcenter/configurationFactory.png&quot; alt=&quot;configurationFactory&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;如：&lt;/p&gt;
+
+&lt;p&gt;配置文件中配置&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;config_center:
+  protocol: zookeeper
+  address: 127.0.0.1:2181
+  namespace: test
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;dubbo-go 内部会解析为&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;zookeeper://127.0.0.1:2181?namespace=test
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;在内部传递，用于初始化配置中心链接。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;PS&lt;/strong&gt;：在 dubbo-go 中到处可见这种内部协议，透彻理解这个内部协议对阅读 dubbo-go 代码很有帮助。&lt;/p&gt;
+
+&lt;h3 id=&quot;dynamicconfiguration&quot;&gt;DynamicConfiguration&lt;/h3&gt;
+
+&lt;p&gt;该接口规定了各个配置中心需要实现的功能：&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;配置数据反序列化方式：目前只有 properties 反序列化，参见： DefaultConfigurationParser 。&lt;/li&gt;
+  &lt;li&gt;增加监听器：用于增加监听数据变化后增加特定逻辑（受限于配置中心 client 端实现）。&lt;/li&gt;
+  &lt;li&gt;删除监听器：删除已有监听器（受限于配置中心 client 端实现，目前所知 nacos client 没有提供该方法）。&lt;/li&gt;
+  &lt;li&gt;获取路由配置：获取路由表配置。&lt;/li&gt;
+  &lt;li&gt;获取应用级配置：获取应用层级配置，如：协议类型配置等。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;a href=&quot;/images/dubbogo/configcenter/dynamicConfiguration.png&quot;&gt;&lt;img src=&quot;/images/dubbogo/configcenter/dynamicConfiguration.png&quot; alt=&quot;dynamicConfiguration&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;实现&quot;&gt;实现&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;/images/dubbogo/configcenter/design.jpg&quot;&gt;&lt;img src=&quot;/images/dubbogo/configcenter/design.jpg&quot; alt=&quot;design&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;优先考虑与现有 dubbo 设计兼容，从而降低使用者的学习成本，&lt;a href=&quot;https://github.com/apache/dubbo-admin&quot;&gt;dubbo-admin&lt;/a&gt; 作为服务提供者实现应用级配置管理， dubbo-go 作为消费端实现配置下发管理功能。以 zookeeper 为例，对服务提供者与服务消费者进行整体流程分析。&lt;/p&gt;
+
+&lt;h3 id=&quot;如何存储配置管理&quot;&gt;如何存储配置管理&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;dubbo-admin&lt;/strong&gt; 配置管理中增加 global 配置，zookeeper 中会自动生成其对应配置节点，内容均为 &lt;strong&gt;dubbo-admin&lt;/strong&gt; 中设置的配置。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;/dubbo/config/dubbo/dubbo.properties 对应全局配置文件。&lt;/li&gt;
+  &lt;li&gt;/dubbo/config/dubbo/ 应用名 /dubbo.properties 对应指定应用配置文件。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;节点路径&quot;&gt;节点路径&lt;/h4&gt;
+
+&lt;p&gt;&lt;a href=&quot;/images/dubbogo/configcenter/key-struct.jpg&quot;&gt;&lt;img src=&quot;/images/dubbogo/configcenter/key-struct.jpg&quot; alt=&quot;key-struct&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;上图展示了 dubbo.properties 文件在 zookeeper 和 Apollo 中的存储结构：&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;zookeeper&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;命名空间 namespace 都为： dubbo&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;分组 group ：全局级别为 dubbo , 所有应用共享；应用级别为应用名 demo-provider ，只对该应用生效&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;key : dubbo.properties&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Apollo&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;app_id : 自由指定，默认： dubbo ，最好与 zookeeper  namespace 一致&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;cluster : 自由指定，最好与 zookeeper group 一致&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;命名空间 namespace : dubbo.properties&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;zookeeper 与 Apollo 最大的不一样就在于 dubbo.properties 所在的节点。&lt;/p&gt;
+
+&lt;h2 id=&quot;实现配置管理中心支持&quot;&gt;实现配置管理中心支持&lt;/h2&gt;
+
+&lt;p&gt;以 Apollo 为例，简单的介绍，如何实现支持一个新的配置管理中心。&lt;/p&gt;
+
+&lt;h3 id=&quot;选择配置管理中心-client--sdk&quot;&gt;选择配置管理中心 Client / SDK&lt;/h3&gt;
+
+&lt;p&gt;本例中使用的 Apollo Go Client 为：&lt;a href=&quot;https://github.com/zouyx/agollo&quot;&gt;https://github.com/zouyx/agollo&lt;/a&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;PS&lt;/strong&gt;: 如没找到，自己实现也是可以的哦。&lt;/p&gt;
+
+&lt;h3 id=&quot;节点路径-1&quot;&gt;节点路径&lt;/h3&gt;
+
+&lt;p&gt;因为每个配置管理中心的存储结构各有特点，导致 dubbo 在使用外部配置管理中心时，存储配置节点的结构不一样。在 &lt;a href=&quot;https://github.com/apache/dubbo/tree/master/dubbo-configcenter&quot;&gt;dubbo-configcenter&lt;/a&gt; 找到希望支持的配置管理中心，而本例中 Apollo 则在 &lt;a href=&quot;https://github.com/apache/dubbo/blob/master/dubbo-configcenter/dubbo-configcenter-apollo/src/main/java/org/apache/dubbo/configcenter/support/apollo/ApolloDynamicConfiguration.java&quot;&gt;ApolloDynamicConfiguration.java&lt;/a&gt; 。&lt;/p&gt;
+
+&lt;p&gt;注释中表明，Apollo namespace = governance (governance .properties) 用于治理规则，namespace = dubbo (dubbo.properties) 用于配置文件。&lt;/p&gt;
+
+&lt;h3 id=&quot;实现-dynamicconfiguration&quot;&gt;实现 DynamicConfiguration&lt;/h3&gt;
+
+&lt;p&gt;新建创建客户端方法，最好客户端保持为单例。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/images/dubbogo/configcenter/apollo-support.png&quot;&gt;&lt;img src=&quot;/images/dubbogo/configcenter/apollo-support.png&quot; alt=&quot;apollo-support&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;以下为必须实现的方法，以下方法用于获取配置中心配置。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;GetInternalProperty：在配置文件（Apollo 为 namespace）中，根据 key 获取对应 value；&lt;/li&gt;
+  &lt;li&gt;GetRule：获取治理配置文件（Apollo 为 namespace）；&lt;/li&gt;
+  &lt;li&gt;GetProperties：获取整个配置文件（Apollo 为 namespace）；&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;可选择实现的方法，如不实现，则不能动态更新 dubbo-go 中配置信息。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;RemoveListener&lt;/li&gt;
+  &lt;li&gt;AddListener&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;而 Parser &amp;amp; SetParser 使用默认实现即可，默认为 Properties 转换器。&lt;/p&gt;
+
+&lt;p&gt;更多信息，参考：&lt;a href=&quot;https://github.com/apache/dubbo-go/tree/master/config_center/apollo&quot;&gt;dubbo-go-apollo&lt;/a&gt; 。&lt;/p&gt;
+
+&lt;h2 id=&quot;使用方法&quot;&gt;使用方法&lt;/h2&gt;
+
+&lt;p&gt;从上面的设计里面，也能大概猜到怎么使用了：&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/images/dubbogo/configcenter/zookeeper-usercase.png&quot;&gt;&lt;img src=&quot;/images/dubbogo/configcenter/zookeeper-usercase.png&quot; alt=&quot;zookeeper-usercase&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;很显然，使用配置中心并不复杂，只需要把对应的依赖引入进来。在包初始化的时候，会创建出来对应的配置中心的实现。比如说加载 ZooKeeper 或者 Apollo 作为配置中心：&lt;/p&gt;
+
+&lt;h3 id=&quot;zookeeper&quot;&gt;zookeeper&lt;/h3&gt;
+
+&lt;div class=&quot;language-golang highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;_&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;github.com/apache/dubbo-go/config_center/zookeeper&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;apollo&quot;&gt;Apollo&lt;/h3&gt;
+
+&lt;div class=&quot;language-golang highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;_&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;github.com/apache/dubbo-go/config_center/apollo&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;当然仅仅加载还不够，比如说虽然我加载了 zookeeper，但是我还需要知道怎么连上这个配置中心，即前面提到的配置中心的元数据，这部分信息是需要在本地配置出来的。比如说：&lt;/p&gt;
+
+&lt;h3 id=&quot;zookeeper-1&quot;&gt;zookeeper&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;config_center:
+  protocol: &quot;zookeeper&quot;
+  address: &quot;127.0.0.1:2181&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;apollo-1&quot;&gt;Apollo&lt;/h3&gt;
+
+&lt;p&gt;如果需要使用 Apollo 作为配置中心，请提前创建 namespace : dubbo.properties ，用于配置管理。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;config_center:
+  protocol: &quot;apollo&quot;
+  address: &quot;127.0.0.1:8070&quot;
+  app_id: test_app
+  cluster: dev
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;总结&quot;&gt;总结&lt;/h2&gt;
+
+&lt;p&gt;更加具体的实现，我就不详细论述，大家可以去看源码，欢迎大家持续关注，或者贡献代码。&lt;/p&gt;
+
+&lt;p&gt;整个配置中心的功能，麻雀虽小，但五脏俱全。目前并不算是十分完善，但是整个框架层面上来说，是走在了正确的路上。从扩展性来说，是比较便利。目前支持的配置中心还不够丰富，只有 zookeeper 与 Apollo ，支持的配置文件格式也只有 properties ，虽然能满足基本使用场景，距离完善还有还长远的路。&lt;/p&gt;
+
+&lt;p&gt;未来计划：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;nacos（已有 PR , 正在 review ）&lt;/li&gt;
+  &lt;li&gt;etcd（未支持）&lt;/li&gt;
+  &lt;li&gt;consul（未支持）&lt;/li&gt;
+  &lt;li&gt;丰富的文件配置格式，如： yml , xml 等&lt;/li&gt;
+&lt;/ol&gt;</content><author><name></name></author><summary type="html">dubbo-go 中如何实现远程配置管理</summary></entry><entry><title type="html">dubbo-go-client端初始化流程</title><link href="http://zouyx.github.io/posts/2019/10/30/dubbo-go-client%E7%AB%AF%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B.html" rel="alternate" type="text/html" title="dubbo-go-client端初始化流程" /><published>2019-10-30T00:00:00+08:00</published><updated>2019-10-30T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2019/10/30/Golang-dubbo-go-client%E7%AB%AF%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B</id><content type="html" xml:base="http://zouyx.github.io/posts/2019/10/30/dubbo-go-client%E7%AB%AF%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B.html">&lt;p&gt;dubbo-go client端初始化流程详解&lt;/p&gt;
+
+&lt;h1 id=&quot;lets-go&quot;&gt;Let‘s Go!&lt;/h1&gt;
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;初始化流程&quot;&gt;初始化流程&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;/images/dubbogo/dubbo-go-client.png&quot;&gt;&lt;img src=&quot;/images/dubbogo/dubbo-go-client.png&quot; alt=&quot;client-flow&quot; /&gt;&lt;/a&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">dubbo-go client端初始化流程详解</summary></entry><entry><title type="html">dubbo-go-server端初始化流程</title><link href="http://zouyx.github.io/posts/2019/10/30/dubbo-go-server%E7%AB%AF%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B.html" rel="alternate" type="text/html" title="dubbo-go-server端初始化流程" /><published>2019-10-30T00:00:00+08:00</published><updated>2019-10-30T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2019/10/30/Golang-dubbo-go-server%E7%AB%AF%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B</id><content type="html" xml:base="http://zouyx.github.io/posts/2019/10/30/dubbo-go-server%E7%AB%AF%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B.html">&lt;p&gt;dubbo-go server端初始化流程详解&lt;/p&gt;
+
+&lt;h1 id=&quot;lets-go&quot;&gt;Let‘s Go!&lt;/h1&gt;
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;初始化流程&quot;&gt;初始化流程&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;/images/dubbogo/dubbo-go-server.png&quot;&gt;&lt;img src=&quot;/images/dubbogo/dubbo-go-server.png&quot; alt=&quot;server-flow&quot; /&gt;&lt;/a&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">dubbo-go server端初始化流程详解</summary></entry><entry><title type="html">Java-Metaspace会发生GC吗</title><link href="http://zouyx.github.io/posts/2019/10/01/Java-Metaspace%E4%BC%9A%E5%8F%91%E7%94%9FGC%E5%90%97.html" rel="alternate" type="text/html" title="Java-Metaspace会发生GC吗" /><published>2019-10-01T00:00:00+08:00</published><updated>2019-10-01T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2019/10/01/Java-Metaspace%E4%BC%9A%E5%8F%91%E7%94%9FGC%E5%90%97</id><content type="html" xml:base="http://zouyx.github.io/posts/2019/10/01/Java-Metaspace%E4%BC%9A%E5%8F%91%E7%94%9FGC%E5%90%97.html">&lt;p&gt;事件源于某一天下午跟同事闲聊的时候，跟同事谈起了Metaspace的是否会GC，双方各执一词。&lt;/p&gt;
+
+&lt;p&gt;认为不会的人：类的元数据，静态常量在运行时，已经整体加载到Meataspace，为什么还会需要GC呢。&lt;/p&gt;
+
+&lt;p&gt;认为会的人：书上是这么写，我看过，但是具体是为什么呢。&lt;/p&gt;
+
+&lt;h1 id=&quot;lets-go&quot;&gt;Let‘s Go!&lt;/h1&gt;
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;永久代与metaspace&quot;&gt;永久代与Metaspace&lt;/h2&gt;
+
+&lt;p&gt;永久代：&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;blockquote&gt;
+    &lt;blockquote&gt;
+      &lt;p&gt;绝大部分 Java 程序员应该都见过 “java.lang.OutOfMemoryError: PermGen space “这个异常。这里的 “PermGen space”其实指的就是方法区。不过方法区和“PermGen space”又有着本质的区别。前者是 JVM 的规范，而后者则是 JVM 规范的一种实现，并且只有 HotSpot 才有 “PermGen space”，而对于其他类型的虚拟机，如 JRockit（Oracle）、J9（IBM） 并没有“PermGen space”。由于方法区主要存储类的相关信息，所以对于动态生成类的情况比较容易出现永久代的内存溢出。最典型的场景就是，在 jsp 页面比较多的情况，容易出现永久代内存溢出。我们现在通过动态生成类来模拟 “PermGen space”的内存溢出&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/blockquote&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Metaspace&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;blockquote&gt;
+    &lt;blockquote&gt;
+      &lt;p&gt;移除永久代的工作从JDK1.7就开始了。JDK1.7中，存储在永久代的部分数据就已经转移到了Java Heap或者是 Native Heap。但永久代仍存在于JDK1.7中，并没完全移除，譬如符号引用(Symbols)转移到了native heap；字面量(interned strings)转移到了java heap；类的静态变量(class statics)转移到了java heap。&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/blockquote&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;触发场景&quot;&gt;触发场景&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;加载其他类而空间不足&lt;/li&gt;
+  &lt;li&gt;已开启Metaspcae并发GC&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;为什么metaspcae也需要gc&quot;&gt;为什么Metaspcae也需要GC？&lt;/h2&gt;
+
+&lt;p&gt;因为Java中的的ClassLoader支持开发者们在运行时加载自定义Class到Metaspace，能动态加载即需要GC监控。所以，监控类加载活动和Metaspace的使用，对于应用性能能否满足需求是有重要意义的，另外GC的统计数据也可以指明类是何时从Metaspca中卸载的。&lt;/p&gt;
+
+&lt;h2 id=&quot;如何调优&quot;&gt;如何调优&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;可以通过-XX:MetaspaceSize与-XX:MaxMetaspaceSize避免GC时扩大或者缩小Metaspace可分配的空间，如：-XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=128m&lt;/li&gt;
+  &lt;li&gt;Metaspace的GC只能和CMS收集器一起使用，需要通过JVM参数打开。&lt;/li&gt;
+  &lt;li&gt;GC周期不会STW，所以程序不会感受到GC导致的停顿，但是，如果在Metaspace空间大的时候，也会有一定明显的性能损耗。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;监控&quot;&gt;监控&lt;/h2&gt;
+
+&lt;p&gt;通过VisualVM中的Classes选项卡可以online监控类加载与卸载的情况。&lt;/p&gt;
+
+&lt;h2 id=&quot;总结&quot;&gt;总结&lt;/h2&gt;
+
+&lt;p&gt;我认为在这个空间能释放的空间毕竟是少，但是，也要了解其特性，调优集中精力在新生代与老年代会比较合理，&lt;/p&gt;</content><author><name></name></author><summary type="html">事件源于某一天下午跟同事闲聊的时候，跟同事谈起了Metaspace的是否会GC，双方各执一词。</summary></entry><entry><title type="html">Java-Shiro是如何影响自定义BeanPostProcessor运作</title><link href="http://zouyx.github.io/posts/2019/07/29/Java-Shiro%E6%98%AF%E5%A6%82%E4%BD%95%E5%BD%B1%E5%93%8D%E8%87%AA%E5%AE%9A%E4%B9%89BeanPostProcessor%E8%BF%90%E4%BD%9C.html" rel="alternate" type="text/html" title="Java-Shiro是如何影响自定义BeanPostProcessor运作" /><published>2019-07-29T00:00:00+08:00</published><updated>2019-07-29T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2019/07/29/Java-Shiro%E6%98%AF%E5%A6%82%E4%BD%95%E5%BD%B1%E5%93%8D%E8%87%AA%E5%AE%9A%E4%B9%89BeanPostProcessor%E8%BF%90%E4%BD%9C</id><content type="html" xml:base="http://zouyx.github.io/posts/2019/07/29/Java-Shiro%E6%98%AF%E5%A6%82%E4%BD%95%E5%BD%B1%E5%93%8D%E8%87%AA%E5%AE%9A%E4%B9%89BeanPostProcessor%E8%BF%90%E4%BD%9C.html">&lt;p&gt;介绍Shiro是如何影响自定义BeanPostProcessor运作。&lt;/p&gt;
+
+&lt;h1 id=&quot;lets-go&quot;&gt;Let‘s Go!&lt;/h1&gt;
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;1解决方案&quot;&gt;1.解决方案&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;隔离shiro使用的组件与业务监控的组件。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;如：shiro使用的redis实例和业务使用的redis实例不使用同一个，但一定要将需要监控的组件托管给spring&lt;/p&gt;
+
+&lt;h2 id=&quot;2场景&quot;&gt;2.场景&lt;/h2&gt;
+
+&lt;h2 id=&quot;3问题现象&quot;&gt;3.问题现象&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;加入通过自定义BeanPostProcessor的监控组件之后,不能监控mysql和redis。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;错误信息&quot;&gt;错误信息&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;2019-07-31 17:20:54.311 restartedMain | [] | INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker Bean 'spring.redis-org.springframework.boot.autoconfigure.data.redis.RedisProperties' of type [org.springframework.boot.autoconfigure.data.redis.RedisProperties] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-07-31 17:20:54.556 restartedMain | [] | INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker Bean 'lettuceConnectionFactory' of type [org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-07-31 17:20:54.693 restartedMain | [] | INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker Bean 'shiroRedisTemplate' of type [org.springframework.data.redis.core.RedisTemplate] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-07-31 17:20:54.883 restartedMain | [] | INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker Bean 'shiroConfig' of type [com.common.security.config.ShiroConfig$$EnhancerBySpringCGLIB$$37c03ac9] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-07-31 17:20:57.525 restartedMain | [] | INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker Bean 'redisCacheManager' of type [com.common.security.cache.RedisCacheManager] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-07-31 17:20:58.060 restartedMain | [] | INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker Bean 'sessionFactory' of type [com.common.security.config.SessionFactory] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-07-31 17:20:58.227 restartedMain | [] | INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker Bean 'sessionManager' of type [org.apache.shiro.web.session.mgt.DefaultWebSessionManager] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-07-31 17:20:58.725 restartedMain | [] | INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker Bean 'securityManager' of type [org.apache.shiro.web.mgt.DefaultWebSecurityManager] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-07-31 17:32:15.457 restartedMain | [] | INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker Bean 'mybatis-plus-com.baomidou.mybatisplus.spring.boot.starter.MybatisPlusProperties' of type [com.baomidou.mybatisplus.spring.boot.starter.MybatisPlusProperties] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-07-31 17:32:16.404 restartedMain | [] | INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker Bean 'mybatisPlusConfig' of type [com.common.config.MybatisPlusConfig$$EnhancerBySpringCGLIB$$48de742d] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-07-31 17:32:16.704 restartedMain | [] | INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker Bean 'performanceInterceptor' of type [com.baomidou.mybatisplus.plugins.PerformanceInterceptor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-07-31 17:32:16.793 restartedMain | [] | INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker Bean 'paginationInterceptor' of type [com.baomidou.mybatisplus.plugins.PaginationInterceptor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-07-31 17:32:17.156 restartedMain | [] | INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker Bean 'com.baomidou.mybatisplus.spring.boot.starter.MybatisPlusAutoConfiguration' of type [com.baomidou.mybatisplus.spring.boot.starter.MybatisPlusAutoConfiguration$$EnhancerBySpringCGLIB$$61864f65] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-07-31 17:32:17.334 restartedMain | [] | INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker Bean 'org.springframework.boot.autoconfigure.jdbc.DataSourceConfiguration$Generic' of type [org.springframework.boot.autoconfigure.jdbc.DataSourceConfiguration$Generic] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-07-31 17:32:19.705 restartedMain | [] | INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker Bean 'spring.datasource-org.springframework.boot.autoconfigure.jdbc.DataSourceProperties' of type [org.springframework.boot.autoconfigure.jdbc.DataSourceProperties] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;4问题分析&quot;&gt;4.问题分析&lt;/h2&gt;
+
+&lt;h3 id=&quot;初步分析&quot;&gt;初步分析&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;通过查看错误信息log发现,其中会包含redis与mysql，是否这些提示就是和无法使用BeanPostProcessor有关系呢？&lt;/li&gt;
+  &lt;li&gt;通过not eligible for auto-proxying信息查找到对应的代码，为什么是：not eligible for auto-proxying 不适用于自动代理？
+    &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;postProcessAfterInitialization&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bean&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bean&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;instanceof&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BeanPostProcessor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;isInfrastructureBean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;beanFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getBeanPostProcessorCount&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;beanPostProcessorTargetCount&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;logger&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;isInfoEnabled&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+              &lt;span class=&quot;n&quot;&gt;logger&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Bean '&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;' of type [&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getClass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+          &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+          &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;仔细观察之下发现，log会归为几类：shiro、redis、jdbc、session。redis和jdbc都是需要监控的组件，会影响bbp吗？先假定不会。那么就剩下shiro了。&lt;/li&gt;
+  &lt;li&gt;尝试把shiro屏蔽，错误信息中的log没了一大部分，自定义的bbp也能进去了，为什么呢？&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;深入分析&quot;&gt;深入分析&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;shiroFilter依赖了securityManager，securityManager依赖了userRealm，userRealm为了获取AuthenticationInfo和AuthorizationInfo又依赖了redis和mysql。&lt;/li&gt;
+  &lt;li&gt;ShiroFitlerFactoryBean这个bean继承了FactoryBean，将SecurityManager提前初始化，并无将初始化过程托管给spring，导致其所有引用的类都没有托管给spring，所以自定义bpp无效。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;测试代码&quot;&gt;测试代码&lt;/h4&gt;
+
+&lt;p&gt;结果：helloA
+证明：增加了factorybean之后，并不会走自定义bpp&lt;/p&gt;
+
+&lt;p&gt;去掉factorybean之后，托管给spring初始化之后
+结果：
+sayHello InitBBean before
+sayHello InitABean before
+helloA
+sayHello InitABean after
+sayHello InitBBean after&lt;/p&gt;
+
+&lt;h5 id=&quot;测试用例&quot;&gt;测试用例&lt;/h5&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@RunWith&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;SpringJUnit4ClassRunner&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@ContextConfiguration&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;classes&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Conf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BeanPostProcessorTestTest&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@Autowired&lt;/span&gt;
+    &lt;span class=&quot;nc&quot;&gt;BeanPostProcessorATest&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@Test&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;sayHello&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;sayHello&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h5 id=&quot;被测试代码&quot;&gt;被测试代码&lt;/h5&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BeanPostProcessorTest&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;sayHello&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BeanPostProcessorATest&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BeanPostProcessorTest&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;sayHello&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;helloA&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BeanPostProcessorBTest&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BeanPostProcessorTest&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;sayHello&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;helloB&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@Configuration&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@ComponentScan&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Conf&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
+&lt;span class=&quot;nd&quot;&gt;@Component&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;InitABean&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;FactoryBean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;BeanPostProcessorATest&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;,&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;BeanPostProcessor&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BeanPostProcessorATest&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;instance&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;postProcessBeforeInitialization&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BeansException&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bean&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;instanceof&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BeanPostProcessorATest&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;){&lt;/span&gt;
+            &lt;span class=&quot;nc&quot;&gt;ProxyFactoryBean&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pfb&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ProxyFactoryBean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;pfb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setTarget&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;pfb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setAutodetectInterfaces&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;nc&quot;&gt;NameMatchMethodPointcutAdvisor&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;advisor&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;NameMatchMethodPointcutAdvisor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;advisor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;addMethodName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;sayHello&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;advisor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setAdvice&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;MethodInterceptor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;invocation&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;sayHello InitABean before&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+                &lt;span class=&quot;nc&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;invocation&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getMethod&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;invoke&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;invocation&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getThis&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;invocation&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getArguments&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+                &lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;sayHello InitABean after&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+                &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;});&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;pfb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;addAdvisor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;advisor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pfb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getObject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;postProcessAfterInitialization&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BeansException&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BeanPostProcessorATest&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getObject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;instance&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;instance&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BeanPostProcessorATest&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;instance&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;?&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;getObjectType&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BeanPostProcessorATest&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;isSingleton&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
+&lt;span class=&quot;nd&quot;&gt;@Component&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;InitBBean&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BeanPostProcessor&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;postProcessBeforeInitialization&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BeansException&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bean&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;instanceof&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BeanPostProcessorATest&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;){&lt;/span&gt;
+            &lt;span class=&quot;nc&quot;&gt;ProxyFactoryBean&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pfb&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ProxyFactoryBean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;pfb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setTarget&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;pfb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setAutodetectInterfaces&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;nc&quot;&gt;NameMatchMethodPointcutAdvisor&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;advisor&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;NameMatchMethodPointcutAdvisor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;advisor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;addMethodName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;sayHello&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;advisor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setAdvice&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;MethodInterceptor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;invocation&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;sayHello InitBBean before&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+                &lt;span class=&quot;nc&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;invocation&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getMethod&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;invoke&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;invocation&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getThis&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;invocation&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getArguments&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+                &lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;sayHello InitBBean after&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+                &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;});&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;pfb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;addAdvisor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;advisor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pfb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getObject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;postProcessAfterInitialization&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BeansException&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name></name></author><summary type="html">介绍Shiro是如何影响自定义BeanPostProcessor运作。</summary></entry><entry><title type="html">Node-如何定位CPU性能问题</title><link href="http://zouyx.github.io/posts/2019/03/21/Node-%E5%A6%82%E4%BD%95%E5%AE%9A%E4%BD%8DCPU%E6%80%A7%E8%83%BD%E9%97%AE%E9%A2%98.html" rel="alternate" type="text/html" title="Node-如何定位CPU性能问题" /><published>2019-03-21T00:00:00+08:00</published><updated>2019-03-21T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2019/03/21/Node-%E5%A6%82%E4%BD%95%E5%AE%9A%E4%BD%8DCPU%E6%80%A7%E8%83%BD%E9%97%AE%E9%A2%98</id><content type="html" xml:base="http://zouyx.github.io/posts/2019/03/21/Node-%E5%A6%82%E4%BD%95%E5%AE%9A%E4%BD%8DCPU%E6%80%A7%E8%83%BD%E9%97%AE%E9%A2%98.html">&lt;p&gt;介绍Nodejs如何定位CPU性能问题。&lt;/p&gt;
+
+&lt;h1 id=&quot;lets-go&quot;&gt;Let‘s Go!&lt;/h1&gt;
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;1解决方案&quot;&gt;1.解决方案&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;使用&lt;a href=&quot;https://github.com/hyj1991/easy-monitor&quot;&gt;easymonitor&lt;/a&gt;生成火焰图定位问题的方法堆栈并对其进行优化。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;2场景&quot;&gt;2.场景&lt;/h2&gt;
+
+&lt;p&gt;在程序使用某个包／类库之后，出现高CPU使用率，高延迟。&lt;/p&gt;
+
+&lt;p&gt;程序QPS：1&lt;/p&gt;
+
+&lt;h2 id=&quot;3问题现象&quot;&gt;3.问题现象&lt;/h2&gt;
+
+&lt;p&gt;如下图所示，3.14 21:00 发布第一次发布，之后重启过两次。&lt;/p&gt;
+
+&lt;p&gt;第一次：3.15 10:00，在此次重启时没意识到根本原因。&lt;/p&gt;
+
+&lt;p&gt;第二次：3.16 14:00，与此同时去除饮用的类库。&lt;/p&gt;
+
+&lt;h3 id=&quot;cpu监控信息&quot;&gt;CPU监控信息&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/nodejscpu/cpuidle.png&quot; alt=&quot;cpuidle&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;4问题分析&quot;&gt;4.问题分析&lt;/h2&gt;
+
+&lt;h3 id=&quot;问题火焰图&quot;&gt;问题火焰图&lt;/h3&gt;
+
+&lt;p&gt;抽样指标：30s&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/nodejscpu/before.png&quot; alt=&quot;before&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;分析&quot;&gt;分析&lt;/h3&gt;
+
+&lt;p&gt;如图所示，问题点在于左下角中GC时间是总时间占比的大约20%&lt;/p&gt;
+
+&lt;p&gt;通过代码走查发现，程序在截取借口uri的时候没把参数去除，导致在内存中频繁生成对象，导致频繁GC。&lt;/p&gt;
+
+&lt;h3 id=&quot;优化后&quot;&gt;优化后&lt;/h3&gt;
+
+&lt;h3 id=&quot;优化后火焰图&quot;&gt;优化后火焰图&lt;/h3&gt;
+
+&lt;p&gt;抽样指标：30s&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/nodejscpu/after.png&quot; alt=&quot;after&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;分析-1&quot;&gt;分析&lt;/h3&gt;
+
+&lt;p&gt;明显看到左下角的GC时间大幅度减少。&lt;/p&gt;
+
+&lt;p&gt;详见：&lt;a href=&quot;https://github.com/SkyAPM/SkyAPM-nodejs/pull/71/files&quot;&gt;https://github.com/SkyAPM/SkyAPM-nodejs/pull/71/files&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;参考&quot;&gt;参考&lt;/h2&gt;
+
+&lt;p&gt;SkyAPM-Nodejs：&lt;a href=&quot;https://github.com/SkyAPM/SkyAPM-nodejs/issues/72&quot;&gt;https://github.com/SkyAPM/SkyAPM-nodejs/issues/72&lt;/a&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">介绍Nodejs如何定位CPU性能问题。</summary></entry><entry><title type="html">Node-使用vue.js编写计算器桌面应用</title><link href="http://zouyx.github.io/posts/2018/9/10/Node-%E4%BD%BF%E7%94%A8vue.js%E7%BC%96%E5%86%99%E8%AE%A1%E7%AE%97%E5%99%A8%E6%A1%8C%E9%9D%A2%E5%BA%94%E7%94%A8.html" rel="alternate" type="text/html" title="Node-使用vue.js编写计算器桌面应用" /><published>2018-09-10T00:00:00+08:00</published><updated>2018-09-10T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2018/9/10/Node-%E4%BD%BF%E7%94%A8vue.js%E7%BC%96%E5%86%99%E6%A1%8C%E9%9D%A2%E5%BA%94%E7%94%A8%3F</id><content type="html" xml:base="http://zouyx.github.io/posts/2018/9/10/Node-%E4%BD%BF%E7%94%A8vue.js%E7%BC%96%E5%86%99%E8%AE%A1%E7%AE%97%E5%99%A8%E6%A1%8C%E9%9D%A2%E5%BA%94%E7%94%A8.html">&lt;p&gt;这是一个使用vue.js编写计算器桌面应用&lt;/p&gt;
+
+&lt;p&gt;除此之外，还会分析为什么需要vue.js编写桌面应用？如何使用vue.js编写桌面应用？&lt;/p&gt;
+
+&lt;h1 id=&quot;lets-go&quot;&gt;Let‘s Go!&lt;/h1&gt;
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;为什么我要使用js编写桌面应用&quot;&gt;为什么我要使用js编写桌面应用&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;因为比较适合编写小工具或者轻量级应用。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;本人身为一个后端工程师，如果需要写桌面应用是否不应该呢？。其实不是。
+首先Vuido的精华就是”使用 JavaScript构建跨平台的桌面应用”。
+后端只写服务不写页面用户怎么用呢？所以多接触一点也算是与时俱进吧。&lt;br /&gt;
+立志成为架构师的我，可以去尝试使用Vuido或者electron来开发桌面应用。
+以后或许可以为自己提供一种全新的解决方案。&lt;/p&gt;
+
+&lt;h2 id=&quot;使用vuejs编写计算器桌面应用&quot;&gt;使用vue.js编写计算器桌面应用&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/val/val.png&quot; alt=&quot;main&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;github：&lt;a href=&quot;https://github.com/zouyx/val&quot;&gt;https://github.com/zouyx/val&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;同类型框架对比&quot;&gt;同类型框架对比&lt;/h2&gt;
+
+&lt;h3 id=&quot;electron&quot;&gt;electron&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;窗口创建背景的问题。&lt;/li&gt;
+  &lt;li&gt;编译后依然是基于浏览器。&lt;/li&gt;
+  &lt;li&gt;编译出来的APP太大。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;经典应用&quot;&gt;经典应用&lt;/h4&gt;
+
+&lt;p&gt;starUML&lt;/p&gt;
+
+&lt;h3 id=&quot;vuido本文使用的框架&quot;&gt;Vuido（本文使用的框架）&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;能编译出基于C++的桌面应用。&lt;/li&gt;
+  &lt;li&gt;编译出来的APP不会太大。&lt;/li&gt;
+  &lt;li&gt;不过目前还不支持展示图片（没有图片标签）。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;为什么需要vuejs编写桌面应用&quot;&gt;为什么需要vue.js编写桌面应用&lt;/h2&gt;
+
+&lt;p&gt;主要是目前js社区，开发人员发展比较快，可以让前端js人员无缝转化成写桌面应用程序的开发人员&lt;/p&gt;
+
+&lt;h2 id=&quot;如何使用vuejs编写桌面应用&quot;&gt;如何使用vue.js编写桌面应用&lt;/h2&gt;
+
+&lt;p&gt;使用 Vuido 编译出Application，详见：&lt;a href=&quot;https://vuido.mimec.org/&quot;&gt;Vuido documentation&lt;/a&gt;.&lt;/p&gt;</content><author><name></name></author><summary type="html">这是一个使用vue.js编写计算器桌面应用</summary></entry><entry><title type="html">好书推荐-当我跑步时我谈些什么</title><link href="http://zouyx.github.io/posts/2018/6/9/%E5%A5%BD%E4%B9%A6%E6%8E%A8%E8%8D%90-%E5%BD%93%E6%88%91%E8%B7%91%E6%AD%A5%E6%97%B6%E6%88%91%E8%B0%88%E4%BA%9B%E4%BB%80%E4%B9%88.html" rel="alternate" type="text/html" title="好书推荐-当我跑步时我谈些什么" /><published>2018-06-09T00:00:00+08:00</published><updated>2018-06-09T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2018/6/9/%E5%A5%BD%E4%B9%A6%E6%8E%A8%E8%8D%90-%E5%BD%93%E6%88%91%E8%B7%91%E6%AD%A5%E6%97%B6%E6%88%91%E8%B0%88%E4%BA%9B%E4%BB%80%E4%B9%88</id><content type="html" xml:base="http://zouyx.github.io/posts/2018/6/9/%E5%A5%BD%E4%B9%A6%E6%8E%A8%E8%8D%90-%E5%BD%93%E6%88%91%E8%B7%91%E6%AD%A5%E6%97%B6%E6%88%91%E8%B0%88%E4%BA%9B%E4%BB%80%E4%B9%88.html">&lt;p&gt;坚持不懈，坚韧不拔，自我突破，不断成长。&lt;/p&gt;
+
+&lt;h2 id=&quot;跑者精神&quot;&gt;跑者精神&lt;/h2&gt;
+&lt;hr /&gt;
+
+&lt;p&gt;村上春树，很久之前就听说过他喜欢跑步，感谢卫哥（我老板），让我真正的认识到村上君对跑步的热情。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;坚持不懈，坚韧不拔&lt;/li&gt;
+  &lt;li&gt;自我突破，不断成长&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;下面是我有感而发。&lt;/p&gt;
+
+&lt;h3 id=&quot;成为跑者&quot;&gt;成为跑者&lt;/h3&gt;
+
+&lt;p&gt;在成为跑者的路上，与村上君有相似之处，都是在某一天发现自己的体力不足以应付繁重的工作。
+尝试过几次群体性运动失败之后，然后尝试了几次跑步之后，就下定决心选择它。
+至少在跑步时，能让自己安静下来，不需要跟任何人交谈，也不必听任何人说话。
+只需要眺望远方美景，向着目标不断前行。
+从跑1公里要休息好几次到跑半马，只能靠不懈的坚持。&lt;/p&gt;
+
+&lt;h3 id=&quot;爱上跑步&quot;&gt;爱上跑步&lt;/h3&gt;
+
+&lt;p&gt;慢慢地，在跑步时，会进入另一个世界，甚至有不少技术方案与处理问题的方式都是在跑步时悟出。
+说是爱上跑步，不如说爱上的是进入另外一种世界的舒适感和安逸感。
+痛楚难以避免，而苦难可以选择。
+选择了跑步，即选择一直与苦难同行。&lt;/p&gt;
+
+&lt;h3 id=&quot;跑看世界&quot;&gt;跑看世界&lt;/h3&gt;
+
+&lt;p&gt;老婆让我爱上旅游，而跑步是我认识世界的方式，跑步是我认识一个陌生地方的快速方式。
+日本，泰国，意大利，希腊，唯一没跑过的是迪拜，太热。
+希腊圣托里尼，圣托里尼酒厂看到最美的酒吧。
+回程的时候，在公路边（其实是悬崖边），看到世界上最美的日落。
+在路边的英国情侣一期一会的对话。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/running/santorini.jpeg&quot; alt=&quot;santorini&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;人生如跑&quot;&gt;人生如跑&lt;/h3&gt;
+
+&lt;p&gt;马拉松，通过不停的训练，才能在马拉松赛上达到既定的目标。
+人生也一样，通过不停的学习，才能在各种竞赛中达到既定的小目标，最终完成人生。&lt;/p&gt;</content><author><name></name></author><summary type="html">坚持不懈，坚韧不拔，自我突破，不断成长。</summary></entry><entry><title type="html">好书推荐-影响力（套路宝典）</title><link href="http://zouyx.github.io/posts/2018/5/6/%E5%A5%BD%E4%B9%A6%E6%8E%A8%E8%8D%90-%E5%BD%B1%E5%93%8D%E5%8A%9B(%E5%A5%97%E8%B7%AF%E5%AE%9D%E5%85%B8).html" rel="alternate" type="text/html" title="好书推荐-影响力（套路宝典）" /><published>2018-05-06T00:00:00+08:00</published><updated>2018-05-06T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2018/5/6/%E5%A5%BD%E4%B9%A6%E6%8E%A8%E8%8D%90-%E5%BD%B1%E5%93%8D%E5%8A%9B(%E5%A5%97%E8%B7%AF%E5%AE%9D%E5%85%B8)</id><content type="html" xml:base="http://zouyx.github.io/posts/2018/5/6/%E5%A5%BD%E4%B9%A6%E6%8E%A8%E8%8D%90-%E5%BD%B1%E5%93%8D%E5%8A%9B(%E5%A5%97%E8%B7%AF%E5%AE%9D%E5%85%B8).html">&lt;p&gt;只有一张脑图，看完之后就知道，原来人生中满是套路&lt;/p&gt;
+
+&lt;h2 id=&quot;lets-go&quot;&gt;Let‘s Go!&lt;/h2&gt;
+&lt;hr /&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/influence/mind.png&quot; alt=&quot;mind&quot; /&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">只有一张脑图，看完之后就知道，原来人生中满是套路</summary></entry></feed>

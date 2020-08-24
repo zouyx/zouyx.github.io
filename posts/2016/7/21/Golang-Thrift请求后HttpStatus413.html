@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Golang-Thrift请求后HttpStatus413 – Joe Zou – 世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="Thrift请求后得到HttpStatus413是什么鬼？以下会为你一一解答。
+
+" />
+    <meta property="og:description" content="Thrift请求后得到HttpStatus413是什么鬼？以下会为你一一解答。
+
+" />
+    
+    <meta name="author" content="Joe Zou" />
+
+    
+    <meta property="og:title" content="Golang-Thrift请求后HttpStatus413" />
+    <meta property="twitter:title" content="Golang-Thrift请求后HttpStatus413" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="Joe Zou - 世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊" href="/feed.xml" />
+    <link rel="shortcut icon" href="/favicon.ico"/>
+    <link rel="bookmark" href="/favicon.ico"/>
+    <meta name="baidu-site-verification" content="2Mdkttrz2v" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+    <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Golang-Thrift请求后HttpStatus413 | Joe Zou</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="Golang-Thrift请求后HttpStatus413" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Thrift请求后得到HttpStatus413是什么鬼？以下会为你一一解答。" />
+<meta property="og:description" content="Thrift请求后得到HttpStatus413是什么鬼？以下会为你一一解答。" />
+<link rel="canonical" href="http://zouyx.github.io/posts/2016/7/21/Golang-Thrift%E8%AF%B7%E6%B1%82%E5%90%8EHttpStatus413.html" />
+<meta property="og:url" content="http://zouyx.github.io/posts/2016/7/21/Golang-Thrift%E8%AF%B7%E6%B1%82%E5%90%8EHttpStatus413.html" />
+<meta property="og:site_name" content="Joe Zou" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2016-07-21T00:00:00+08:00" />
+<script type="application/ld+json">
+{"description":"Thrift请求后得到HttpStatus413是什么鬼？以下会为你一一解答。","@type":"BlogPosting","url":"http://zouyx.github.io/posts/2016/7/21/Golang-Thrift%E8%AF%B7%E6%B1%82%E5%90%8EHttpStatus413.html","headline":"Golang-Thrift请求后HttpStatus413","dateModified":"2016-07-21T00:00:00+08:00","datePublished":"2016-07-21T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://zouyx.github.io/posts/2016/7/21/Golang-Thrift%E8%AF%B7%E6%B1%82%E5%90%8EHttpStatus413.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+    <!-- Google Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-115938575-1', 'auto');
+	ga('send', 'pageview', { 'page': location.pathname + location.search + location.hash});
+	ga('set', 'anonymizeIp', true);
+    </script>
+    <!-- End Google Analytics -->
+    </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="https://avatars.githubusercontent.com/u/3828072?v=4&s=400" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">Joe Zou</a></h1>
+            <p class="site-description">世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</p>
+          </div>
+
+          <nav>
+            
+              <a href="/" title="Go to Blogs">Blogs</a>
+            
+              <a href="/projects" title="Go to Projects">Projects</a>
+            
+              <a href="/about" title="Go to About">About</a>
+            
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>Golang-Thrift请求后HttpStatus413</h1>
+
+  <div class="entry">
+    <p>Thrift请求后得到HttpStatus413是什么鬼？以下会为你一一解答。</p>
+
+<h2 id="lets-go">Let’s Go!</h2>
+<hr />
+
+<h2 id="1解决方案">1.解决方案</h2>
+
+<ul>
+  <li>自己继承后重新实现（推荐）</li>
+  <li>修改thrfit包中SetHeader／Flush方法，增加重置header逻辑</li>
+  <li>每次都重新创建Thrift连接</li>
+</ul>
+
+<h2 id="2环境">2.环境</h2>
+
+<ul>
+  <li>Golang version：1.5</li>
+  <li>Linux version：Linux version 2.6.32-279.el6.x86_64 (gcc version 4.4.6 20120305 (Red Hat 4.4.6-4) (GCC) )</li>
+  <li>Os version：CentOS release 6.3 (Final) 2.6.32-279.el6.x86_64</li>
+  <li>Cpu ：12</li>
+  <li>Mem ：8G</li>
+  <li>网络协议：Thrift</li>
+</ul>
+
+<h2 id="3场景">3.场景</h2>
+<ul>
+  <li>使用Sync.pool管理调用Thrift的goroutine，减少创建及销毁goroutine开销，c为调用client
+    <div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">c</span> <span class="o">:=</span> <span class="n">pool</span><span class="o">.</span><span class="n">Get</span><span class="p">()</span>
+  <span class="k">defer</span> <span class="n">pool</span><span class="o">.</span><span class="n">Put</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+  <span class="n">以下为调用逻辑</span><span class="o">....</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h2 id="4问题现象">4.问题现象</h2>
+
+<h3 id="错误信息">错误信息</h3>
+
+<ul>
+  <li>Client端报Http Status 413</li>
+  <li>Server端无报错信息</li>
+</ul>
+
+<h2 id="5问题原因">5.问题原因</h2>
+<p>1.HttpStatus 413是什么意思？</p>
+<blockquote>
+  <p>HTTP Status 413 （请求实体过大） 
+服务器无法处理请求，因为请求实体过大，超出服务器的处理能力。</p>
+</blockquote>
+
+<p><strong>注意：这里请求实体过大的意思是包括header和body（一开始定位时只定位了body，就进坑了- -）</strong></p>
+
+<p>针对该问题主要为header过大</p>
+
+<p>2.RPC时会设置header，但对于存在于pool中的goroutine，是Addheader，请看以下代码，</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// Set the HTTP Header for this specific Thrift Transport</span>
+<span class="c">// It is important that you first assert the TTransport as a THttpClient type</span>
+<span class="c">// like so:</span>
+<span class="c">//</span>
+<span class="c">// httpTrans := trans.(THttpClient)</span>
+<span class="c">// httpTrans.SetHeader("User-Agent","Thrift Client 1.0")</span>
+<span class="k">func</span> <span class="p">(</span><span class="n">p</span> <span class="o">*</span><span class="n">THttpClient</span><span class="p">)</span> <span class="n">SetHeader</span><span class="p">(</span><span class="n">key</span> <span class="kt">string</span><span class="p">,</span> <span class="n">value</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">p</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>这就是导致出现413的原因</strong></p>
+
+  </div>
+
+  <div>
+    <img src="/images/code.jpg"/>
+  </div>
+
+  <div class="date">
+    Written on July 21, 2016
+  </div>
+
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+<a href="mailto:joezou@apache.org"><i class="svg-icon email"></i></a>
+
+
+<a href="https://github.com/zouyx"><i class="svg-icon github"></i></a>
+
+<a href="https://www.linkedin.com/in/joe-zou-829b2981"><i class="svg-icon linkedin"></i></a>
+
+<a href="/feed.xml"><i class="svg-icon rss"></i></a>
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>

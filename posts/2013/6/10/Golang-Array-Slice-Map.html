@@ -10,10 +10,8 @@
 
     
     <meta name="description" content="介绍Go三种数组结构
-
 " />
     <meta property="og:description" content="介绍Go三种数组结构
-
 " />
     
     <meta name="author" content="Joe Zou" />
@@ -34,9 +32,9 @@
     <meta name="baidu-site-verification" content="2Mdkttrz2v" />
 
     <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
-    <!-- Begin Jekyll SEO tag v2.6.1 -->
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
 <title>Golang-Array-Slice-Map | Joe Zou</title>
-<meta name="generator" content="Jekyll v3.8.6" />
+<meta name="generator" content="Jekyll v4.4.1" />
 <meta property="og:title" content="Golang-Array-Slice-Map" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="介绍Go三种数组结构" />
@@ -46,8 +44,10 @@
 <meta property="og:site_name" content="Joe Zou" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2013-06-10T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Golang-Array-Slice-Map" />
 <script type="application/ld+json">
-{"description":"介绍Go三种数组结构","@type":"BlogPosting","url":"http://zouyx.github.io/posts/2013/6/10/Golang-Array-Slice-Map.html","headline":"Golang-Array-Slice-Map","dateModified":"2013-06-10T00:00:00+08:00","datePublished":"2013-06-10T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://zouyx.github.io/posts/2013/6/10/Golang-Array-Slice-Map.html"},"@context":"https://schema.org"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2013-06-10T00:00:00+08:00","datePublished":"2013-06-10T00:00:00+08:00","description":"介绍Go三种数组结构","headline":"Golang-Array-Slice-Map","mainEntityOfPage":{"@type":"WebPage","@id":"http://zouyx.github.io/posts/2013/6/10/Golang-Array-Slice-Map.html"},"url":"http://zouyx.github.io/posts/2013/6/10/Golang-Array-Slice-Map.html"}</script>
 <!-- End Jekyll SEO tag -->
 
   
@@ -101,7 +101,7 @@
 <h2 id="array">Array</h2>
 <p>Array(数组)是固定长度,相同类型的集合,因为是固定长度,因此大小不能改变.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> 1.1.创建Array
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> 1.1.创建Array
  有两种初始化方式
       1.1.1.固定长度
            var a [3]int
@@ -114,7 +114,7 @@
 <h2 id="slice">Slice</h2>
 <p>Slice(切片)是非固定长度,相同类型的集合,如果有新元素加入,Slice会增加长度,并且Slice总是指向一个底层的Array,是一个指向Array的指针</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> 2.1.创建一个长度为10,空的Slice
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> 2.1.创建一个长度为10,空的Slice
       slice:=make([]int,10)
  
  2.2.创建一个非空的slice
@@ -143,7 +143,7 @@
 <p>//从s2创建slice,注意s5的指针扔向指向a
  s5:=s2[:]</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   2.4.追加slice元素  s0:=[]int{1,2}  //向s0中追加元素3  s1:=append(s0,3)  //向s0中追加多个元素  s2:=append(s0,3,4,5)  //向S0中追加一个slice  s3:=append(s0,s2...)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   2.4.追加slice元素  s0:=[]int{1,2}  //向s0中追加元素3  s1:=append(s0,3)  //向s0中追加多个元素  s2:=append(s0,3,4,5)  //向S0中追加一个slice  s3:=append(s0,s2...)
 
    2.5.复制slice元素
     a:=[...]int{1,2,3,4,5}
@@ -156,7 +156,7 @@
 
 <h2 id="map">Map</h2>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> Map可以理解为是一个有索引的数组,一般定义形式为map[from type(key type)]to type(value type)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> Map可以理解为是一个有索引的数组,一般定义形式为map[from type(key type)]to type(value type)
  monthDays:= map[ string] int {
     "Jan" :31,"Feb" :30,"Mar" :31,
     "Apr" :30,"May" :30,"Jun" :30,//&lt;&lt;&lt;&lt;&lt;最后这个逗号是必须的!

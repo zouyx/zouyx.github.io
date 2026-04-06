@@ -10,10 +10,8 @@
 
     
     <meta name="description" content="导致进程消失原因：64位操作系统中，写一个溢出指针到内存的非指针字符（a non-pointer word of memory），导致GC的时，不能看到该溢出块，所以导致GC过早回收该块，然后就导致崩溃（目前在NaCl/amd64p32已发现该问题）。
-
 " />
     <meta property="og:description" content="导致进程消失原因：64位操作系统中，写一个溢出指针到内存的非指针字符（a non-pointer word of memory），导致GC的时，不能看到该溢出块，所以导致GC过早回收该块，然后就导致崩溃（目前在NaCl/amd64p32已发现该问题）。
-
 " />
     
     <meta name="author" content="Joe Zou" />
@@ -34,9 +32,9 @@
     <meta name="baidu-site-verification" content="2Mdkttrz2v" />
 
     <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
-    <!-- Begin Jekyll SEO tag v2.6.1 -->
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
 <title>Golang-进程无故消失? | Joe Zou</title>
-<meta name="generator" content="Jekyll v3.8.6" />
+<meta name="generator" content="Jekyll v4.4.1" />
 <meta property="og:title" content="Golang-进程无故消失?" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="导致进程消失原因：64位操作系统中，写一个溢出指针到内存的非指针字符（a non-pointer word of memory），导致GC的时，不能看到该溢出块，所以导致GC过早回收该块，然后就导致崩溃（目前在NaCl/amd64p32已发现该问题）。" />
@@ -46,8 +44,10 @@
 <meta property="og:site_name" content="Joe Zou" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2017-06-24T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Golang-进程无故消失?" />
 <script type="application/ld+json">
-{"description":"导致进程消失原因：64位操作系统中，写一个溢出指针到内存的非指针字符（a non-pointer word of memory），导致GC的时，不能看到该溢出块，所以导致GC过早回收该块，然后就导致崩溃（目前在NaCl/amd64p32已发现该问题）。","@type":"BlogPosting","url":"http://zouyx.github.io/posts/2017/6/24/Golang-%E8%BF%9B%E7%A8%8B%E6%97%A0%E6%95%85%E6%B6%88%E5%A4%B1.html","headline":"Golang-进程无故消失?","dateModified":"2017-06-24T00:00:00+08:00","datePublished":"2017-06-24T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://zouyx.github.io/posts/2017/6/24/Golang-%E8%BF%9B%E7%A8%8B%E6%97%A0%E6%95%85%E6%B6%88%E5%A4%B1.html"},"@context":"https://schema.org"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2017-06-24T00:00:00+08:00","datePublished":"2017-06-24T00:00:00+08:00","description":"导致进程消失原因：64位操作系统中，写一个溢出指针到内存的非指针字符（a non-pointer word of memory），导致GC的时，不能看到该溢出块，所以导致GC过早回收该块，然后就导致崩溃（目前在NaCl/amd64p32已发现该问题）。","headline":"Golang-进程无故消失?","mainEntityOfPage":{"@type":"WebPage","@id":"http://zouyx.github.io/posts/2017/6/24/Golang-%E8%BF%9B%E7%A8%8B%E6%97%A0%E6%95%85%E6%B6%88%E5%A4%B1.html"},"url":"http://zouyx.github.io/posts/2017/6/24/Golang-%E8%BF%9B%E7%A8%8B%E6%97%A0%E6%95%85%E6%B6%88%E5%A4%B1.html"}</script>
 <!-- End Jekyll SEO tag -->
 
   
@@ -122,7 +122,7 @@
 <h2 id="3问题现象">3.问题现象</h2>
 
 <h3 id="错误信息">错误信息</h3>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>fatal error: bad map state
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>fatal error: bad map state
 
 goroutine 89 [running]:
 runtime.throw(0x990ca0, 0xd)

@@ -10,10 +10,8 @@
 
     
     <meta name="description" content="dubbo-go 中如何实现远程配置管理
-
 " />
     <meta property="og:description" content="dubbo-go 中如何实现远程配置管理
-
 " />
     
     <meta name="author" content="Joe Zou" />
@@ -34,9 +32,9 @@
     <meta name="baidu-site-verification" content="2Mdkttrz2v" />
 
     <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
-    <!-- Begin Jekyll SEO tag v2.6.1 -->
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
 <title>dubbo-go 中如何实现远程配置管理 | Joe Zou</title>
-<meta name="generator" content="Jekyll v3.8.6" />
+<meta name="generator" content="Jekyll v4.4.1" />
 <meta property="og:title" content="dubbo-go 中如何实现远程配置管理" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="dubbo-go 中如何实现远程配置管理" />
@@ -46,8 +44,10 @@
 <meta property="og:site_name" content="Joe Zou" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-01-17T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="dubbo-go 中如何实现远程配置管理" />
 <script type="application/ld+json">
-{"description":"dubbo-go 中如何实现远程配置管理","@type":"BlogPosting","url":"http://zouyx.github.io/posts/2020/01/17/dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%BF%9C%E7%A8%8B%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86.html","headline":"dubbo-go 中如何实现远程配置管理","dateModified":"2020-01-17T00:00:00+08:00","datePublished":"2020-01-17T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://zouyx.github.io/posts/2020/01/17/dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%BF%9C%E7%A8%8B%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86.html"},"@context":"https://schema.org"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2020-01-17T00:00:00+08:00","datePublished":"2020-01-17T00:00:00+08:00","description":"dubbo-go 中如何实现远程配置管理","headline":"dubbo-go 中如何实现远程配置管理","mainEntityOfPage":{"@type":"WebPage","@id":"http://zouyx.github.io/posts/2020/01/17/dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%BF%9C%E7%A8%8B%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86.html"},"url":"http://zouyx.github.io/posts/2020/01/17/dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%BF%9C%E7%A8%8B%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86.html"}</script>
 <!-- End Jekyll SEO tag -->
 
   
@@ -160,7 +160,7 @@
   <li>如何实现支持多个配置中心？如何实现按需加载？</li>
 </ol>
 
-<p>通过抽象 <code class="highlighter-rouge">DynamicConfiguration</code> 让开发者可以快速支持多个配置中心。</p>
+<p>通过抽象 <code class="language-plaintext highlighter-rouge">DynamicConfiguration</code> 让开发者可以快速支持多个配置中心。</p>
 
 <p>使用者导入指定的组件包后，在启动阶段将需要的组件加载进内存中，以便给程序按需调用，如下图绿色部分。</p>
 
@@ -187,14 +187,14 @@
 <p>如：</p>
 
 <p>配置文件中配置</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>config_center:
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>config_center:
   protocol: zookeeper
   address: 127.0.0.1:2181
   namespace: test
 </code></pre></div></div>
 
 <p>dubbo-go 内部会解析为</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>zookeeper://127.0.0.1:2181?namespace=test
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>zookeeper://127.0.0.1:2181?namespace=test
 </code></pre></div></div>
 <p>在内部传递，用于初始化配置中心链接。</p>
 
@@ -327,7 +327,7 @@
 
 <h3 id="zookeeper-1">zookeeper</h3>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>config_center:
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>config_center:
   protocol: "zookeeper"
   address: "127.0.0.1:2181"
 </code></pre></div></div>
@@ -336,7 +336,7 @@
 
 <p>如果需要使用 Apollo 作为配置中心，请提前创建 namespace : dubbo.properties ，用于配置管理。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>config_center:
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>config_center:
   protocol: "apollo"
   address: "127.0.0.1:8070"
   app_id: test_app

@@ -10,10 +10,8 @@
 
     
     <meta name="description" content="dubbo-go 中如何实现路由规则功能
-
 " />
     <meta property="og:description" content="dubbo-go 中如何实现路由规则功能
-
 " />
     
     <meta name="author" content="Joe Zou" />
@@ -34,9 +32,9 @@
     <meta name="baidu-site-verification" content="2Mdkttrz2v" />
 
     <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
-    <!-- Begin Jekyll SEO tag v2.6.1 -->
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
 <title>dubbo-go 中如何实现路由规则功能 | Joe Zou</title>
-<meta name="generator" content="Jekyll v3.8.6" />
+<meta name="generator" content="Jekyll v4.4.1" />
 <meta property="og:title" content="dubbo-go 中如何实现路由规则功能" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="dubbo-go 中如何实现路由规则功能" />
@@ -46,8 +44,10 @@
 <meta property="og:site_name" content="Joe Zou" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-03-31T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="dubbo-go 中如何实现路由规则功能" />
 <script type="application/ld+json">
-{"description":"dubbo-go 中如何实现路由规则功能","@type":"BlogPosting","url":"http://zouyx.github.io/posts/2020/03/30/dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%B7%AF%E7%94%B1%E8%A7%84%E5%88%99%E5%8A%9F%E8%83%BD.html","headline":"dubbo-go 中如何实现路由规则功能","dateModified":"2020-03-31T00:00:00+08:00","datePublished":"2020-03-31T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://zouyx.github.io/posts/2020/03/30/dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%B7%AF%E7%94%B1%E8%A7%84%E5%88%99%E5%8A%9F%E8%83%BD.html"},"@context":"https://schema.org"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2020-03-31T00:00:00+08:00","datePublished":"2020-03-31T00:00:00+08:00","description":"dubbo-go 中如何实现路由规则功能","headline":"dubbo-go 中如何实现路由规则功能","mainEntityOfPage":{"@type":"WebPage","@id":"http://zouyx.github.io/posts/2020/03/30/dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%B7%AF%E7%94%B1%E8%A7%84%E5%88%99%E5%8A%9F%E8%83%BD.html"},"url":"http://zouyx.github.io/posts/2020/03/30/dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%B7%AF%E7%94%B1%E8%A7%84%E5%88%99%E5%8A%9F%E8%83%BD.html"}</script>
 <!-- End Jekyll SEO tag -->
 
   
@@ -160,8 +160,8 @@
 <p>3.如何实现本地与远程路由规则配置加载？</p>
 
 <ul>
-  <li>本地路由规则配置：在原配置加载阶段，新增读取路由配置文件。使用 <code class="highlighter-rouge">FIleRouterFactory</code> 解析后，生成对应路由规则，放置到内存中备用。</li>
-  <li>远程路由规则配置：在 zookeeper 注册并监听静态资源目录后。读取静态资源，筛选符合路由规则配置信息，通过 <code class="highlighter-rouge">RouterFactory</code> 生成对应路由规则，放置到内存中备用。</li>
+  <li>本地路由规则配置：在原配置加载阶段，新增读取路由配置文件。使用 <code class="language-plaintext highlighter-rouge">FIleRouterFactory</code> 解析后，生成对应路由规则，放置到内存中备用。</li>
+  <li>远程路由规则配置：在 zookeeper 注册并监听静态资源目录后。读取静态资源，筛选符合路由规则配置信息，通过 <code class="language-plaintext highlighter-rouge">RouterFactory</code> 生成对应路由规则，放置到内存中备用。</li>
 </ul>
 
 <h2 id="router">Router</h2>
@@ -237,7 +237,7 @@
 
 <p>对应应用级全局路由规则配置。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/dubbo/config/dubbo/user-info-server（应用名）.condition-router
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/dubbo/config/dubbo/user-info-server（应用名）.condition-router
 </code></pre></div></div>
 
 <p>应用名：只对 user-info-server 应用生效
@@ -247,7 +247,7 @@
 
 <p>对应服务级所有路由规则配置。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/dubbo/ com.ikurento.user.UserProvider（服务名） /routers
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/dubbo/ com.ikurento.user.UserProvider（服务名） /routers
 </code></pre></div></div>
 
 <p>服务名：只对 com.ikurento.user.UserProvider 服务生效。</p>
@@ -279,12 +279,12 @@
 
 <h2 id="本地路由规则配置">本地路由规则配置</h2>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>_ "github.com/apache/dubbo-go/cluster/router/condition"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>_ "github.com/apache/dubbo-go/cluster/router/condition"
 </code></pre></div></div>
 
 <p>仅仅引用依赖包还不直接使用，还需要配置指定的配置文件： <strong><em>router_config.yml</em></strong> ，内容如下:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># dubbo router yaml configure file
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># dubbo router yaml configure file
 priority: 1
 force: true
 conditions : ["host = 1.1.1.1 =&gt; host = 192.168.199.214"]
@@ -294,7 +294,7 @@ conditions : ["host = 1.1.1.1 =&gt; host = 192.168.199.214"]
 
 <h2 id="配置中心配置">配置中心配置</h2>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>_ "github.com/apache/dubbo-go/config_center/zookeeper"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>_ "github.com/apache/dubbo-go/config_center/zookeeper"
 </code></pre></div></div>
 
 <p>目前仅支持 zookeeper 配置中心，与 dubbo-admin 结合即可使用。配置方式如下：</p>

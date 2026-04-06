@@ -1,4 +1,32 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://zouyx.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="http://zouyx.github.io/" rel="alternate" type="text/html" /><updated>2026-04-07T00:54:50+08:00</updated><id>http://zouyx.github.io/feed.xml</id><title type="html">Joe Zou</title><subtitle>世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</subtitle><entry><title type="html">dubbo-go 中如何实现路由规则功能</title><link href="http://zouyx.github.io/posts/2020/03/30/dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%B7%AF%E7%94%B1%E8%A7%84%E5%88%99%E5%8A%9F%E8%83%BD.html" rel="alternate" type="text/html" title="dubbo-go 中如何实现路由规则功能" /><published>2020-03-31T00:00:00+08:00</published><updated>2020-03-31T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2020/03/30/Golang-dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%B7%AF%E7%94%B1%E7%AD%96%E7%95%A5%E5%8A%9F%E8%83%BD</id><content type="html" xml:base="http://zouyx.github.io/posts/2020/03/30/dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%B7%AF%E7%94%B1%E8%A7%84%E5%88%99%E5%8A%9F%E8%83%BD.html"><![CDATA[<p>dubbo-go 中如何实现路由规则功能</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://zouyx.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="http://zouyx.github.io/" rel="alternate" type="text/html" /><updated>2026-04-07T01:36:27+08:00</updated><id>http://zouyx.github.io/feed.xml</id><title type="html">Joe Zou</title><subtitle>世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</subtitle><entry><title type="html">OpenAI与Anthropic财务揭秘：IPO前的关键洞察</title><link href="http://zouyx.github.io/posts/2026/04/06/openai-anthropic-ipo-finance-insights.html" rel="alternate" type="text/html" title="OpenAI与Anthropic财务揭秘：IPO前的关键洞察" /><published>2026-04-06T00:00:00+08:00</published><updated>2026-04-06T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2026/04/06/ai-openai-anthropic-ipo-finance-insights</id><content type="html" xml:base="http://zouyx.github.io/posts/2026/04/06/openai-anthropic-ipo-finance-insights.html"><![CDATA[<blockquote>
+  <p>本文由 GitHub Actions 自动抓取 Google News 热门 AI 话题，并调用 GitHub Copilot / GitHub Models 生成初稿。</p>
+
+  <p>热点来源：<a href="https://news.google.com/rss/articles/CBMi-gJBVV95cUxPbGEwM3VSZkVIa1VVTzgtWTVVbzRZOGJCZ2hfUjU0R0JJeXI2SGVQV0xkMF9lM014UW1pc0R2MzB6cFZoQnoydDE5SjA5Vmp3dThfZmo1S3EzUWZMY1JiWkhuVnBkakNfcWVrdUpoZUM1Z2I0MjE0aWlrZU1PSlE4TjZCY05uZVlhYTNLdko3eVM5THk1Qm04ZjdMR0ZpTlJYQ2I0YmJIUTFDUmduY3NsNko4V1g5UmNIdUVZY1k0VFhzc3ZDbHNjaXJNR0pBdkRPbFZhaG5Kb1lUV0JYZms5bUZieS1UTWI3M1dncmJpeDhHbllqSWhZeUJYUHhIbXZZc2ttRFdaWmRScW1Ja1pOZ25MTExMSlltOS10dWthMHpLWm5XUFp0V1pwRkptUlY2aG5qZUtCZFRYTTdGSUVkRjhjVnpDbDlLQWJsaFlRdVZoME42TGpKLWp5X2txbmhSdnhmcW9jZDl6ZlM3QVY5RXF2dFQzSk14SVE?oc=5">Google News / wsj.com</a> · 发布时间：2026-04-06 01:00:00 UTC</p>
+</blockquote>
+
+<h2 id="事件概览">事件概览</h2>
+
+<p>根据华尔街日报（<a href="https://news.google.com/rss/articles/CBMi-gJBVV95cUxPbGEwM3VSZkVIa1VVTzgtWTVVbzRZOGJCZ2hfUjU0R0JJeXI2SGVQV0xkMF9lM014UW1pc0R2MzB6cFZoQnoydDE5SjA5Vmp3dThfZmo1S3EzUWZMY1JiWkhuVnBkakNfcWVrdUpoZUM1Z2I0MjE0aWlrZU1PSlE4TjZCY05uZVlhYTNLdko3eVM5THk1Qm04ZjdMR0ZpTlJYQ2I0YmJIUTFDUmduY3NsNko4V1g5UmNIdUVZY1k0VFhzc3ZDbHNjaXJNR0pBdkRPbFZhaG5Kb1lUV0JYZms5bUZieS1UTWI3M1dncmJpeDhHbllqSWhZeUJYUHhIbXZZc2ttRFdaWmRScW1Ja1pOZ25MTExMSlltOS10dWthMHpLWm5XUFp0V1pwRkptUlY2aG5qZUtCZFRYTTdGSUVkRjhjVnpDbDlLQWJsaFlRdVZoME42TGpKLWp5X2txbmhSdnhmcW9jZDl6ZlM3QVY5RXF2dFQzSk14SVE?oc=5">原始链接</a>），OpenAI和Anthropic两大领先的人工智能公司正处于准备首次公开募股（IPO）的关键阶段。报道详细披露了两家公司近年的财务状况，包括收入来源、研发投入与资金流动情况，为市场和技术观察者提供了珍贵的数据支持。</p>
+
+<h2 id="为什么值得关注">为什么值得关注</h2>
+
+<p>这两家公司不仅代表了当下AI技术的前沿，也直接影响着AI产业的资本生态和未来发展方向。IPO作为融资和公众监督的转折点，将极大影响它们的战略部署与技术创新节奏。了解其财务细节，有助于判断AI产业的健康度和潜在风险。</p>
+
+<h2 id="技术与产业影响">技术与产业影响</h2>
+
+<p>已知事实表明，OpenAI与Anthropic均在大规模模型训练和安全性研究上投入巨资，这些投入推动了自然语言处理及生成式AI的快速发展。资金充裕使得它们能够吸引顶尖人才和加速产品落地，推动AI从实验室走向更广泛的商业应用。推断来看，IPO成功将为更多AI初创企业树立融资典范，加速产业成熟与竞争格局演变。</p>
+
+<h2 id="工程团队可以怎么做">工程团队可以怎么做</h2>
+
+<p>工程团队应关注这两家公司在技术研发上的重点领域，如模型效率优化和AI安全机制，借鉴其研发策略和资金分配模式。同时，准备迎接IPO后可能带来的产品变化和市场压力，提升敏捷响应能力和技术创新能力，以保持竞争优势。</p>
+
+<h2 id="风险与争议">风险与争议</h2>
+
+<p>已知的是，公开市场对AI公司的估值存在高度波动，IPO过程中的财务透明度和盈利模式仍受质疑。此外，技术伦理和AI安全问题也引发广泛讨论，公众和监管层对公司责任的期望不断提升。推断这将要求公司在技术开发与合规监管之间找到平衡。</p>
+
+<h2 id="总结">总结</h2>
+
+<p>OpenAI和Anthropic的IPO不仅是一场资本运作，更是人工智能产业发展路径的风向标。通过深入分析其财务状况，我们能够更清晰地理解AI技术进步背后的资金支持与战略考量。对于工程师和行业观察者来说，这是把握未来AI发展趋势的重要窗口。</p>]]></content><author><name></name></author><category term="AI" /><category term="AI" /><category term="Google News" /><category term="GitHub Copilot" /><summary type="html"><![CDATA[本文深入解析OpenAI和Anthropic在即将IPO前的财务状况，探讨其背后技术发展与产业影响，为工程团队和行业观察者提供前瞻视角。]]></summary></entry><entry><title type="html">dubbo-go 中如何实现路由规则功能</title><link href="http://zouyx.github.io/posts/2020/03/30/dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%B7%AF%E7%94%B1%E8%A7%84%E5%88%99%E5%8A%9F%E8%83%BD.html" rel="alternate" type="text/html" title="dubbo-go 中如何实现路由规则功能" /><published>2020-03-31T00:00:00+08:00</published><updated>2020-03-31T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2020/03/30/Golang-dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%B7%AF%E7%94%B1%E7%AD%96%E7%95%A5%E5%8A%9F%E8%83%BD</id><content type="html" xml:base="http://zouyx.github.io/posts/2020/03/30/dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%B7%AF%E7%94%B1%E8%A7%84%E5%88%99%E5%8A%9F%E8%83%BD.html"><![CDATA[<p>dubbo-go 中如何实现路由规则功能</p>
 
 <h1 id="lets-go">Let‘s Go!</h1>
 <hr />
@@ -905,9 +933,4 @@ sayHello InitBBean after</p>
 <h3 id="人生如跑">人生如跑</h3>
 
 <p>马拉松，通过不停的训练，才能在马拉松赛上达到既定的目标。
-人生也一样，通过不停的学习，才能在各种竞赛中达到既定的小目标，最终完成人生。</p>]]></content><author><name></name></author><summary type="html"><![CDATA[坚持不懈，坚韧不拔，自我突破，不断成长。]]></summary></entry><entry><title type="html">好书推荐-影响力（套路宝典）</title><link href="http://zouyx.github.io/posts/2018/5/6/%E5%A5%BD%E4%B9%A6%E6%8E%A8%E8%8D%90-%E5%BD%B1%E5%93%8D%E5%8A%9B%EF%BC%88%E5%A5%97%E8%B7%AF%E5%AE%9D%E5%85%B8%EF%BC%89.html" rel="alternate" type="text/html" title="好书推荐-影响力（套路宝典）" /><published>2018-05-06T00:00:00+08:00</published><updated>2018-05-06T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2018/5/6/%E5%A5%BD%E4%B9%A6%E6%8E%A8%E8%8D%90-%E5%BD%B1%E5%93%8D%E5%8A%9B%EF%BC%88%E5%A5%97%E8%B7%AF%E5%AE%9D%E5%85%B8%EF%BC%89</id><content type="html" xml:base="http://zouyx.github.io/posts/2018/5/6/%E5%A5%BD%E4%B9%A6%E6%8E%A8%E8%8D%90-%E5%BD%B1%E5%93%8D%E5%8A%9B%EF%BC%88%E5%A5%97%E8%B7%AF%E5%AE%9D%E5%85%B8%EF%BC%89.html"><![CDATA[<p>只有一张脑图，看完之后就知道，原来人生中满是套路</p>
-
-<h2 id="lets-go">Let‘s Go!</h2>
-<hr />
-
-<p><img src="/images/influence/mind.png" alt="mind" /></p>]]></content><author><name></name></author><summary type="html"><![CDATA[只有一张脑图，看完之后就知道，原来人生中满是套路]]></summary></entry></feed>
+人生也一样，通过不停的学习，才能在各种竞赛中达到既定的小目标，最终完成人生。</p>]]></content><author><name></name></author><summary type="html"><![CDATA[坚持不懈，坚韧不拔，自我突破，不断成长。]]></summary></entry></feed>

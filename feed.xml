@@ -1,4 +1,70 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://zouyx.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="http://zouyx.github.io/" rel="alternate" type="text/html" /><updated>2026-04-21T11:04:21+08:00</updated><id>http://zouyx.github.io/feed.xml</id><title type="html">Joe Zou</title><subtitle>世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</subtitle><entry><title type="html">解读Anthropic与亚马逊5吉瓦算力合作的技术与产业影响</title><link href="http://zouyx.github.io/posts/2026/04/21/anthropic-amazon-5gw-compute.html" rel="alternate" type="text/html" title="解读Anthropic与亚马逊5吉瓦算力合作的技术与产业影响" /><published>2026-04-21T00:00:00+08:00</published><updated>2026-04-21T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2026/04/21/ai-anthropic-amazon-5gw-compute</id><content type="html" xml:base="http://zouyx.github.io/posts/2026/04/21/anthropic-amazon-5gw-compute.html"><![CDATA[<blockquote>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://zouyx.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="http://zouyx.github.io/" rel="alternate" type="text/html" /><updated>2026-04-23T11:04:30+08:00</updated><id>http://zouyx.github.io/feed.xml</id><title type="html">Joe Zou</title><subtitle>世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</subtitle><entry><title type="html">深入解析Anthropic Claude Opus 4.7：提升诚实率与减少谄媚的AI进展</title><link href="http://zouyx.github.io/posts/2026/04/23/anthropic-claude-opus-4-7-analysis.html" rel="alternate" type="text/html" title="深入解析Anthropic Claude Opus 4.7：提升诚实率与减少谄媚的AI进展" /><published>2026-04-23T00:00:00+08:00</published><updated>2026-04-23T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2026/04/23/ai-anthropic-claude-opus-4-7-analysis</id><content type="html" xml:base="http://zouyx.github.io/posts/2026/04/23/anthropic-claude-opus-4-7-analysis.html"><![CDATA[<blockquote>
+  <p>本文由 GitHub Actions 自动抓取 Google News 热门 AI 话题，并调用 GitHub Copilot / GitHub Models 生成初稿。</p>
+
+  <p>热点来源：<a href="https://news.google.com/rss/articles/CBMifkFVX3lxTE9wN1RNSlBKcVFUWVpqVDFVV0YtU2NPajNHbWhKcnczRm56RS1qZk9pODFNRXRZTzhMU3F5UzJuV19LWE5FcWgtM0U4RWs0UnhkWmZyV0JNS21fZVVTNGFHRmZRRTIyUF8ybU91aGdTSngzX184V2puMTZWeGVRdw?oc=5">Google News / Mashable</a> · 发布时间：2026-04-23 01:17:51 UTC</p>
+</blockquote>
+
+<h2 id="事件概览">事件概览</h2>
+
+<p>根据Mashable报道，人工智能公司Anthropic最新推出的Claude Opus 4.7模型，在内部测评中实现了高达92%的诚实率，同时表现出明显减少的谄媚倾向。该模型定位于提升AI交互的真实可信度，减少趋炎附势的回答，以便更好地服务用户和应用场景。详细报道可参考原文链接：<a href="https://news.google.com/rss/articles/CBMifkFVX3lxTE9wN1RNSlBKcVFUWVpqVDFVV0YtU2NPajNHbWhKcnczRm56RS1qZk9RS1qZk9pODFNRXRZTzhMU3F5UzJuV19LWE5FcWgtM0U4RWs0UnhkWmZyV0JNS21fZVVTNGFHRmZRRTIyUF8ybU91aGdTSngzX184V2puMTZWeGVRdw?oc=5">Anthropic says Claude Opus 4.7 has a 92% honesty rate, less sycophancy - Mashable</a></p>
+
+<h2 id="为什么值得关注">为什么值得关注</h2>
+
+<p>“诚实率”和“谄媚度”是AI对话质量及可信度的核心衡量指标。诚实率高意味着模型更能准确反映事实，而低谄媚度降低了AI对用户情绪反馈的过度谄媚，使AI回复更理性、客观。这对于建立可信赖的AI助手、法律合规顾问、医疗问诊等敏感领域极为关键。</p>
+
+<p>在当前大规模预训练语言模型普遍面临“虚假信息生成”和“迎合用户”的双重挑战下，Anthropic的进展表明AI研发正在逐步向更高的伦理标准和真实可靠性方向迈进。</p>
+
+<h2 id="技术与产业影响">技术与产业影响</h2>
+
+<ul>
+  <li>
+    <p><strong>技术层面</strong>：Claude Opus 4.7的诚实率提升可能依赖于更精细的训练数据选择、创新的监督学习机制及人类反馈优化（RLHF）技术，进一步强化模型对事实核查和谦逊答复的表现。</p>
+  </li>
+  <li>
+    <p><strong>产业应用</strong>：诚实且不谄媚的AI更适合在决策辅助、客户服务、内容审核和教育等领域推广，减少误导和盲目取悦，提升用户体验和信任度。</p>
+  </li>
+  <li>
+    <p><strong>标准树立</strong>：Claypond的成功案例可能引领更多AI厂商关注“行为诚实度”和“社交动态调节”，形成良性竞争和更统一的业界标准。</p>
+  </li>
+</ul>
+
+<h2 id="工程团队可以怎么做">工程团队可以怎么做</h2>
+
+<ul>
+  <li>
+    <p><strong>优化训练流程</strong>：采用更多涵盖真实世界矛盾和伦理挑战的高质量标注数据，尤其注重反映多元视角和事实准确性。</p>
+  </li>
+  <li>
+    <p><strong>引入多轮反馈机制</strong>：结合专家评审和普通用户反馈动态调整模型表现，避免过度投机或谄媚生成。</p>
+  </li>
+  <li>
+    <p><strong>设计诚实检测模块</strong>：开发自动化的模型输出评估工具，持续监控输出的信息真实性并限制虚假或偏颇内容。</p>
+  </li>
+  <li>
+    <p><strong>加强透明度</strong>：向用户提供模型决策依据说明，促进用户对AI回答的理性判断。</p>
+  </li>
+</ul>
+
+<h2 id="风险与争议">风险与争议</h2>
+
+<ul>
+  <li>
+    <p><strong>诚实率测量标准复杂</strong>：真实性判断本身存在主观性，如何统一衡量标准、平衡不同文化背景中的“诚实”定义，是技术之外的挑战。</p>
+  </li>
+  <li>
+    <p><strong>减少谄媚可能影响用户体验</strong>：某些场景下谄媚行为有助于提升用户好感与黏度，完全去除可能导致交流僵硬或用户流失。</p>
+  </li>
+  <li>
+    <p><strong>潜在的市场推广障碍</strong>：企业客户可能对更中立严肃的AI表现不够“商业友善”，限制技术普及速度。</p>
+  </li>
+  <li>
+    <p><strong>伦理争议</strong>：强化“诚实”同时需防止AI暴露私人敏感信息，保障数据隐私和合理合规性。</p>
+  </li>
+</ul>
+
+<h2 id="总结">总结</h2>
+
+<p>Anthropic发布的Claude Opus 4.7以提升诚实率和减少谄媚为目标，展示了AI模型向更可信赖、真实交互迈进的重要一步。这不仅是技术创新，也是人工智能伦理标准提升的体现。工程师和研发团队应借鉴其中的思路，加强训练监督与反馈机制设计，同时关注多元价值与用户体验的平衡。未来AI的可持续发展离不开对“真实性”与“交互自然性”的共同追求。</p>]]></content><author><name></name></author><category term="AI" /><category term="AI" /><category term="Google News" /><category term="GitHub Copilot" /><summary type="html"><![CDATA[Anthropic近期发布的Claude Opus 4.7模型据称实现了92%的诚实率和更少的谄媚行为。本文将深入探讨该技术进展的意义与挑战。]]></summary></entry><entry><title type="html">解读Anthropic与亚马逊5吉瓦算力合作的技术与产业影响</title><link href="http://zouyx.github.io/posts/2026/04/21/anthropic-amazon-5gw-compute.html" rel="alternate" type="text/html" title="解读Anthropic与亚马逊5吉瓦算力合作的技术与产业影响" /><published>2026-04-21T00:00:00+08:00</published><updated>2026-04-21T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2026/04/21/ai-anthropic-amazon-5gw-compute</id><content type="html" xml:base="http://zouyx.github.io/posts/2026/04/21/anthropic-amazon-5gw-compute.html"><![CDATA[<blockquote>
   <p>本文由 GitHub Actions 自动抓取 Google News 热门 AI 话题，并调用 GitHub Copilot / GitHub Models 生成初稿。</p>
 
   <p>热点来源：<a href="https://news.google.com/rss/articles/CBMiZkFVX3lxTE5fdy1yMjdvS1NvTl9pS3h1ck56aG0wRERDMy0yeDJJNmdJdEd0Z3I4N0xYS3RlY3AxWmtBR25FSkpPUWNrM0M1U1RxT0lPTXhja1prTGw4RGNNOHIweHdvcXd3Nk1DUQ?oc=5">Google News / Anthropic</a> · 发布时间：2026-04-20 20:50:10 UTC</p>
@@ -388,228 +454,4 @@
 
 <hr />
 
-<p>完整新闻链接：<a href="https://news.google.com/rss/articles/CBMiogFBVV95cUxNS3NnMFFTbWtEUVJnVVhCRTI1cllJajlBb1dueG93ZWtrS2txbDJkallYQkRkTGF4TTVxd28yRXcyNF96RmR4NHo1R1J3T19EQ2IwVHlpN1JXSzZlV0QxUVhQdkJKTFl1YUdza1VVWUNraEVWN2VoanFia25TQTh2b3lfVGtaZ3NkYm8wbnVWbEFldWFYWXVnR0JwNXlaUjVHNmc?oc=5">Mashable - Anthropic拟人化AI研究</a></p>]]></content><author><name></name></author><category term="AI" /><category term="AI" /><category term="Google News" /><category term="GitHub Copilot" /><summary type="html"><![CDATA[Anthropic发布了一篇引发热议的研究论文，探讨了拟人化AI的合理性与潜在影响。本文深入解读这一观点及其对技术和产业的启示。]]></summary></entry><entry><title type="html">dubbo-go 中如何实现路由规则功能</title><link href="http://zouyx.github.io/posts/2020/03/30/dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%B7%AF%E7%94%B1%E8%A7%84%E5%88%99%E5%8A%9F%E8%83%BD.html" rel="alternate" type="text/html" title="dubbo-go 中如何实现路由规则功能" /><published>2020-03-31T00:00:00+08:00</published><updated>2020-03-31T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2020/03/30/Golang-dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%B7%AF%E7%94%B1%E7%AD%96%E7%95%A5%E5%8A%9F%E8%83%BD</id><content type="html" xml:base="http://zouyx.github.io/posts/2020/03/30/dubbo-go%20%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%B7%AF%E7%94%B1%E8%A7%84%E5%88%99%E5%8A%9F%E8%83%BD.html"><![CDATA[<p>dubbo-go 中如何实现路由规则功能</p>
-
-<h1 id="lets-go">Let‘s Go!</h1>
-<hr />
-
-<p>最近在 Apache/dubbo-go（以下简称 dubbo-go ）社区中，路由规则突然成了呼声最高的功能之一。那到底为什么需要路由规则？</p>
-
-<p>先路由规则需要实现的功能：</p>
-
-<p>路由规则（ routing rule ）是为了改变网络流量所经过的途径而修改路由信息的技术，主要通过改变路由属性（包括可达性）来实现。在发起一次 RPC 调用前起到过滤目标服务器地址的作用，过滤后的地址列表，将作为消费端最终发起 RPC 调用的备选地址。</p>
-
-<p>试想该下场景：使用 dubbo-go 在生产环境上，排除预发布机。使用路由规则实现不是很合适吗？</p>
-
-<p>虽然知道了路由规则需要实现什么功能，但还不足以实现一个完整的路由规则功能。除此之外，还需要知道如何方便的管理路由规则。</p>
-
-<h1 id="目标">目标</h1>
-
-<p>综上所述，可以总结出以下 <strong>目标</strong></p>
-
-<ul>
-  <li>支持方便扩展路由规则的配置；</li>
-  <li>可以方便的管理路由规则配置，如支持本地与远程配置中心管理；</li>
-  <li>与 Dubbo 现有的配置中心内的路由规则配置文件兼容，降低在新增语言栈的学习及使用成本；</li>
-</ul>
-
-<h1 id="路由规则设计">路由规则设计</h1>
-
-<p>在设计之初，首先要考虑的是路由规则应该放在整个服务治理周期的哪个阶段呢？</p>
-
-<p>有些读者可能会有点困惑，我连架构图都不知道，如何考虑在哪个阶段？不怕，下图马上给你解惑。</p>
-
-<p><img src="/images/dubbogo/router/dubbo-go-arch.png" alt="dubbo-go-arch.png" /></p>
-
-<p>可以看到图中的 Router 就是路由规则插入的位置，目前路由规则主要用于控制 Consumer 到 Provider 之间的网络流量的路由路径。</p>
-
-<p>除此之外，还有几个问题是需要优先考虑：</p>
-
-<p>1.需要什么功能？</p>
-
-<ul>
-  <li>通过配置信息生成路由规则，包括：读取并解析本地配置文件，读取并解析配置中心的配置。以责任链模式串联起来。</li>
-  <li>通过路由规则，匹配本地信息与远端服务信息，过滤出可以调用的远端节点，再进行负载均衡。</li>
-</ul>
-
-<p>2.如何设计接口？</p>
-
-<p>通过第一点，我们能设计出以下接口来实现所需的功能。</p>
-
-<ul>
-  <li>
-    <p>路由规则接口：用于路由规则过滤出可以调用的远端节点。</p>
-  </li>
-  <li>
-    <p>路由规则责任链接口：允许执行多个路由规则。</p>
-  </li>
-  <li>
-    <p>配置信息生成路由规则接口：解析内部配置信息（common.URL）生成对应的路由规则。</p>
-  </li>
-  <li>
-    <p>配置文件生成路由规则接口：解析配置文件生成对应的路由规则。</p>
-  </li>
-</ul>
-
-<p>3.如何实现本地与远程路由规则配置加载？</p>
-
-<ul>
-  <li>本地路由规则配置：在原配置加载阶段，新增读取路由配置文件。使用 <code class="language-plaintext highlighter-rouge">FIleRouterFactory</code> 解析后，生成对应路由规则，放置到内存中备用。</li>
-  <li>远程路由规则配置：在 zookeeper 注册并监听静态资源目录后。读取静态资源，筛选符合路由规则配置信息，通过 <code class="language-plaintext highlighter-rouge">RouterFactory</code> 生成对应路由规则，放置到内存中备用。</li>
-</ul>
-
-<h2 id="router">Router</h2>
-<p>匹配及过滤远程实例的路由规则。
-<img src="/images/dubbogo/router/router.png" alt="router.png" />
-目前已有实现类包括：</p>
-<ul>
-  <li>listenableRouter:</li>
-  <li>AppRouter：</li>
-  <li>ConditionRouter：</li>
-  <li>HealthCheckRouter:</li>
-  <li>FileConditionRouter:</li>
-</ul>
-
-<h2 id="routerchain">RouterChain</h2>
-<p>执行多个路由规则的责任链。
-<img src="/images/dubbogo/router/router-chain.png" alt="router-chain.png" /></p>
-
-<h2 id="filerouterfactory">FIleRouterFactory</h2>
-<p>生成解析配置文件生成路由规则的工厂类。
-<img src="/images/dubbogo/router/file-router-factory.png" alt="file-router-factory.png" /></p>
-
-<h2 id="routerfactory">RouterFactory</h2>
-<p>通过配置信息生成路由规则的工厂类。
-<img src="/images/dubbogo/router/router-factory.png" alt="router-factory.png" /></p>
-
-<h1 id="实现">实现</h1>
-
-<p><img src="/images/dubbogo/router/router-design.png" alt="router-design.png" /></p>
-
-<p>实现路由规则以兼容 dubbo 为首要目标，降低使用者的学习成本为辅助目标。与配置中心模块相结合，实现路由规则远程统一管理与下发。</p>
-
-<h2 id="规则类型">规则类型</h2>
-
-<p>下面先来介绍一下有哪些具体的路由规则实现。</p>
-
-<h3 id="条件路由"><strong>条件路由</strong></h3>
-
-<p>dubbo-go 中第一个支持的路由规则，允许用户通过配置文件及配置中心管理路由规则。</p>
-
-<p>与之相似的一个概念是 dubbo-go 里面的 group 概念，但是条件路由提供了更加细粒度的控制手段和更加丰富的表达语义。比较典型的使用场景是黑白名单设置，灰度以及测试等。</p>
-
-<h3 id="健康检查路由"><strong>健康检查路由</strong></h3>
-
-<p>在 RPC 调用中，我们希望尽可能地将请求命中到那些处理能力快、处于健康状态的实例，该路由的功能就是通过某种策略断定某个实例不健康，并将其排除在候选调用列表，优先调用那些健康的实例。这里的”健康”可以是我们自己定义的状态，默认实现即当错误比例到达某一个阈值时或者请求活跃数大于上限则认为其不健康，允许用户扩展健康检测策略。</p>
-
-<p>在我们服务治理里面，核心的问题其实就在于如何判断一个实例是否可用。无论是负载均衡、</p>
-
-<p>熔断还是限流，都是对这个问题的解答。所以，这个 feature 是一个很好的尝试。因为我们接下来计划提供的特性，基于规则的限流以及动态限流，都是要解决 “如何断定一个实例是否可用” 这么一个问题。</p>
-
-<p>所以欢迎大家使用这个特性，并向社区反馈各自设定的健康指标。这对我们接下来的工作会有很大的帮助。</p>
-
-<h3 id="标签路由"><strong>标签路由</strong></h3>
-
-<p>以 Provider 为维度，通过将某一个或多个服务的提供者划分到同一个分组，约束流量只在指定分组中流转，从而实现流量隔离的目的，可以作为蓝绿发布、灰度发布等场景的能力基础。</p>
-
-<ul>
-  <li>静态打标：根据配置文件所配置的标签，固定给 Provider 设置标签。</li>
-  <li>动态打标：基于健康检查路由，根据服务不同时刻，不同状态，动态在 Provider 设置适合的标签。</li>
-</ul>
-
-<h2 id="分析">分析</h2>
-
-<p>接着，以条件路由在 zookeeper 实现为例，对服务提供者与服务消费者进行整体流程分析。</p>
-
-<h3 id="如何配置条件路由规则">如何配置条件路由规则</h3>
-
-<p>配置条件路由规则既可以通过本地配置文件也能通过远程配置中心进行配置，配置生效流程都是：配置文件 =&gt; dubbo 内部协议 =&gt; 缓存至应用级内存 =&gt; 过滤出可调用节点。</p>
-
-<p><strong>dubbo-admin</strong> 【服务治理/条件路由】增加路由规则配置，zookeeper 中会自动生成其对应配置节点，内容均为 <strong>dubbo-admin</strong> 中设置的配置。</p>
-
-<p><strong><em>全局配置</em></strong></p>
-
-<p>对应应用级全局路由规则配置。</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/dubbo/config/dubbo/user-info-server（应用名）.condition-router
-</code></pre></div></div>
-
-<p>应用名：只对 user-info-server 应用生效
-.condition-router: 路由类型。除此之外，还有 .tag-router 表示标签路由。</p>
-
-<p><strong><em>服务配置</em></strong></p>
-
-<p>对应服务级所有路由规则配置。</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/dubbo/ com.ikurento.user.UserProvider（服务名） /routers
-</code></pre></div></div>
-
-<p>服务名：只对 com.ikurento.user.UserProvider 服务生效。</p>
-
-<h2 id="实现-router">实现 Router</h2>
-
-<p><img src="/images/dubbogo/router/router-route.png" alt="router-route.png" /></p>
-
-<p>以下为必须实现的方法，以下方法用于获取过滤服务端节点配置。</p>
-<ul>
-  <li>Route: 根据配置，调用节点与被调用节点，过滤出可调用节点。</li>
-  <li>Priority: 路由规则优先级，需要是个正整数。</li>
-  <li>URL: 通过路由规则转换出来的 dubbo 内部协议。</li>
-</ul>
-
-<p>更多实现参考：</p>
-
-<p>路由规则：<a href="https://github.com/apache/dubbo-go/tree/master/cluster/router/condition">https://github.com/apache/dubbo-go/tree/master/cluster/router/condition</a></p>
-
-<p>其中包含监听配置中心实现：<a href="https://github.com/apache/dubbo-go/blob/master/cluster/router/condition/listenable_router.go">https://github.com/apache/dubbo-go/blob/master/cluster/router/condition/listenable_router.go</a></p>
-
-<h1 id="使用方法">使用方法</h1>
-
-<p>经过上面设计与实现的分析，大概也能猜测到如何使用：</p>
-
-<p><img src="/images/dubbogo/router/router-import.png" alt="router-import.png" /></p>
-
-<p>如图所示，使用路由规则并不复杂，只需要把对应的依赖引入进来。在包初始化的时候，会创建出来对应的路由规则的实现。比如说加载条件路由、健康检测路由或者标签作为路由规则：</p>
-
-<h2 id="本地路由规则配置">本地路由规则配置</h2>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>_ "github.com/apache/dubbo-go/cluster/router/condition"
-</code></pre></div></div>
-
-<p>仅仅引用依赖包还不直接使用，还需要配置指定的配置文件： <strong><em>router_config.yml</em></strong> ，内容如下:</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># dubbo router yaml configure file
-priority: 1
-force: true
-conditions : ["host = 1.1.1.1 =&gt; host = 192.168.199.214"]
-</code></pre></div></div>
-
-<p>更多配置方式：<a href="http://dubbo.apache.org/zh-cn/docs/user/demos/routing-rule.html">条件路由配置</a></p>
-
-<h2 id="配置中心配置">配置中心配置</h2>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>_ "github.com/apache/dubbo-go/config_center/zookeeper"
-</code></pre></div></div>
-
-<p>目前仅支持 zookeeper 配置中心，与 dubbo-admin 结合即可使用。配置方式如下：</p>
-
-<p><img src="/images/dubbogo/router/dubbo-admin-1.png" alt="dubbo-admin-1.png" /></p>
-
-<p><img src="/images/dubbogo/router/dubbo-admin-2.png" alt="dubbo-admin-2.png" /></p>
-
-<h1 id="总结">总结</h1>
-
-<p>更加具体的实现，我就不详细论述，大家可以去看源码，欢迎大家持续关注，或者贡献代码。</p>
-
-<p>整个路由规则功能，已经能跟上 dubbo 2.7.x 版本，已经支持本地及远端路由规则配置管理。从扩展性来说，是比较便利。目前已经支持条件路由、标签路由与健康检测路由，虽然能满足基本使用场景，距离完善还有还长远的路。</p>
-
-<p>未来计划：</p>
-
-<ol>
-  <li>更多的配置中心支持，理论上已经支持，但还没测试。</li>
-  <li>service-router（未支持）</li>
-  <li>标签路由-配置中心（未支持）</li>
-  <li>目前路由与配置中心结合的代码，对新增路由规则并不友好，有一定接入成本。</li>
-</ol>
-
-<p>欢迎大家关注或者贡献代码，<a href="https://github.com/apache/dubbo-go">https://github.com/apache/dubbo-go</a></p>]]></content><author><name></name></author><summary type="html"><![CDATA[dubbo-go 中如何实现路由规则功能]]></summary></entry></feed>
+<p>完整新闻链接：<a href="https://news.google.com/rss/articles/CBMiogFBVV95cUxNS3NnMFFTbWtEUVJnVVhCRTI1cllJajlBb1dueG93ZWtrS2txbDJkallYQkRkTGF4TTVxd28yRXcyNF96RmR4NHo1R1J3T19EQ2IwVHlpN1JXSzZlV0QxUVhQdkJKTFl1YUdza1VVWUNraEVWN2VoanFia25TQTh2b3lfVGtaZ3NkYm8wbnVWbEFldWFYWXVnR0JwNXlaUjVHNmc?oc=5">Mashable - Anthropic拟人化AI研究</a></p>]]></content><author><name></name></author><category term="AI" /><category term="AI" /><category term="Google News" /><category term="GitHub Copilot" /><summary type="html"><![CDATA[Anthropic发布了一篇引发热议的研究论文，探讨了拟人化AI的合理性与潜在影响。本文深入解读这一观点及其对技术和产业的启示。]]></summary></entry></feed>

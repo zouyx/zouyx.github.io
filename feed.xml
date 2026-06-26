@@ -1,4 +1,105 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://zouyx.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="http://zouyx.github.io/" rel="alternate" type="text/html" /><updated>2026-06-24T11:11:31+08:00</updated><id>http://zouyx.github.io/feed.xml</id><title type="html">Joe Zou</title><subtitle>世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</subtitle><entry><title type="html">ToT推理策略的算力非弹性本质及自适应工程挑战深析</title><link href="http://zouyx.github.io/posts/2026/06/24/tot-budget-inelasticity.html" rel="alternate" type="text/html" title="ToT推理策略的算力非弹性本质及自适应工程挑战深析" /><published>2026-06-24T00:00:00+08:00</published><updated>2026-06-24T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2026/06/24/ai-tot-budget-inelasticity</id><content type="html" xml:base="http://zouyx.github.io/posts/2026/06/24/tot-budget-inelasticity.html"><![CDATA[<blockquote>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://zouyx.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="http://zouyx.github.io/" rel="alternate" type="text/html" /><updated>2026-06-26T11:08:52+08:00</updated><id>http://zouyx.github.io/feed.xml</id><title type="html">Joe Zou</title><subtitle>世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</subtitle><entry><title type="html">Agentic AI系统全栈落地的工程取舍与协议化挑战：深度分析</title><link href="http://zouyx.github.io/posts/2026/06/26/agentic-ai-system-tradeoffs-analysis.html" rel="alternate" type="text/html" title="Agentic AI系统全栈落地的工程取舍与协议化挑战：深度分析" /><published>2026-06-26T00:00:00+08:00</published><updated>2026-06-26T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2026/06/26/ai-agentic-ai-system-tradeoffs-analysis</id><content type="html" xml:base="http://zouyx.github.io/posts/2026/06/26/agentic-ai-system-tradeoffs-analysis.html"><![CDATA[<blockquote>
+  <p>本文由 GitHub Actions 自动抓取热门 AI 话题，并使用“先研究、再写作、后审校”的多阶段流程生成初稿。</p>
+
+  <p>热点来源：<a href="https://arxiv.org/abs/2606.24937">arXiv</a> · 发布时间：2026-06-25 04:00:00 UTC
+关联报道数：0 · 使用模型：research=openai/gpt-5, writing=openai/gpt-4.1, review=openai/gpt-4.1</p>
+</blockquote>
+
+<h1 id="agentic-ai系统全栈落地的工程取舍与协议化挑战深度分析">Agentic AI系统全栈落地的工程取舍与协议化挑战：深度分析</h1>
+
+<blockquote>
+  <p>原始新闻链接：<a href="https://arxiv.org/abs/2606.24937">https://arxiv.org/abs/2606.24937</a></p>
+</blockquote>
+
+<h2 id="技术全栈协同系统优先的工程范式转变">技术全栈协同：系统优先的工程范式转变</h2>
+
+<p>《The Hitchhiker’s Guide to Agentic AI》以“全栈”视角覆盖底层 LLM（Transformer、GPU 系统）、训练（SFT/LoRA/MoE）、推理优化（模型压缩、推理加速）、对齐（RLHF/PPO/DPO/GRPO）、Agent 训练、RAG/Agentic RAG、记忆系统、协议与多 Agent 编排、评测与生产部署。作者强调系统落地需打通每一层，不能只优化单点。这一观点与传统“模型优先”形成对照，推动工程团队在训练、推理、编排等环节同步考虑能力、成本、可靠性等多目标协同。</p>
+
+<p>具体而言，模型压缩、推理优化、MoE 等被部署层并列，表明算力/成本约束成为 Agent 系统设计的第一性原则。推理与对齐能力提升（如复杂多 Agent 编排、链式思考）往往带来更高延迟与成本；轻量化（LoRA、模型压缩）降低资源消耗但可能牺牲能力上限。工程落地建议：</p>
+<ul>
+  <li>针对实际场景优先采用“成本优先”适配（LoRA/压缩/推理优化）。</li>
+  <li>能力瓶颈明显时再引入更重度对齐或测试时扩展。</li>
+  <li>建议建立传统 RAG 与 Agentic RAG 双基线对照，A/B 测试任务成功率、时延、推理成本与失败模式。</li>
+</ul>
+
+<h2 id="协议化与多-agent-编排标准化趋势与复杂性权衡">协议化与多 Agent 编排：标准化趋势与复杂性权衡</h2>
+
+<p>书中区分 RAG 与 Agentic RAG、记忆系统类型（上下文/外部/情节式/语义）、多 Agent 协同协议（MCP、A2A、集中/去中心化/分层），释放“协议化与编排层标准化”信号。系统正从“模型对话”转向“协议交互”，强调可组合性与可维护性。</p>
+
+<p>协议化与多 Agent 协同在复杂任务、跨工具调用场景下能力上限更高，但引入通信复杂度、状态同步、失败隔离等新挑战。工程建议：</p>
+<ul>
+  <li>抽象接口与通信边界，便于未来接入不同协议（如 MCP、A2A）。</li>
+  <li>试验集中式与去中心化拓扑，评估观测性、失败隔离、消息可回放。</li>
+  <li>关注拓扑切换成本、跨组件失败传播半径、调试便利性。</li>
+</ul>
+
+<p>但当前生态尚不成熟——MCP、A2A 等协议的跨厂商支持范围、成熟度未明，短期内难成为事实标准。</p>
+
+<h2 id="记忆系统与数据治理类型淘汰与可解释性">记忆系统与数据治理：类型、淘汰与可解释性</h2>
+
+<p>书中将记忆系统细致划分（上下文、外部、情节式、语义），提示实际落地需按任务特性、数据敏感度做组合。建议工程实验：</p>
+<ul>
+  <li>设计不同记忆类型的写入、读取、淘汰策略（如 TTL），记录命中率、重复调用率、Token 开销、延迟变化。</li>
+  <li>强调错误可追溯：能否还原轨迹，便于审计与回溯。</li>
+</ul>
+
+<h2 id="对齐与评测闭环可靠性与-roi-驱动">对齐与评测闭环：可靠性与 ROI 驱动</h2>
+
+<p>覆盖 RLHF/DPO/GRPO 等对齐方法和任务评测方法学，显示作者意图将对齐与评测做成工程闭环（可量化决策与可追溯审计）。严格评测提升可靠性（如安全、性能、成本 SLO 达成率），但前期成本与迭代速度受限。建议搭建 Agent 任务评测与观测框架：</p>
+<ul>
+  <li>离线偏好数据、规则用例、在线回放结合，覆盖成功率、不当输出、成本与时延。</li>
+  <li>强监管场景优先采用可审计流程，弱监管场景则追求迭代速度。</li>
+</ul>
+
+<p>但 GRPO、DPO 等方法在 Agent 任务上的相对增益、数据需求门槛等缺乏实证对比，建议建立双基线实验。</p>
+
+<h2 id="企业落地与-roi流程集成边界与阻力">企业落地与 ROI：流程集成、边界与阻力</h2>
+
+<p>企业落地核心在于 ROI、流程集成成本、数据权限边界、评估指标、组织阻力。若书中实现与评测方法可复用，有望降低试点搭建与评测投入，缩短从 PoC 到上线周期。但实际落地会受算力供给、推理成本、能耗、交付周期影响——这不是简单的硬件堆栈。</p>
+
+<h2 id="安全与审计多-agent-责任归属与数据边界">安全与审计：多 Agent 责任归属与数据边界</h2>
+
+<p>多 Agent/协议化带来能力提升，但责任切分、数据权限更复杂，需加强审计链路，包括：</p>
+<ul>
+  <li>预算上限、循环调用断路器、工具白名单、审计日志（覆盖轨迹、参数、记忆写入）。</li>
+  <li>关注异常工具调用阻断率、审计追溯覆盖率。</li>
+</ul>
+
+<h2 id="基础设施与云资源异构调度与容量规划">基础设施与云资源：异构调度与容量规划</h2>
+
+<p>推理优化、模型压缩、MoE 并列讨论推动用户更精细化地选择训练/推理负载形态，需异构资源与弹性调度。复杂多步推理与多 Agent 协作增加峰值时延、成本预留，对容量规划和能耗策略提出新要求。</p>
+
+<h2 id="工程落地建议可执行">工程落地建议（可执行）</h2>
+
+<ol>
+  <li><strong>传统 RAG vs Agentic RAG 双基线实验</strong>：相同任务/数据下 A/B 测试，度量收益/成本/失败模式。</li>
+  <li><strong>记忆系统类型实验</strong>：设计写入/读取/淘汰策略，记录命中率、延迟、可解释性。</li>
+  <li><strong>成本优先垂直场景适配</strong>：先 LoRA/压缩/推理优化，质量瓶颈时再引入重度对齐/扩展。</li>
+  <li><strong>任务评测与观测闭环</strong>：最小化离线偏好数据、在线回放，涵盖可靠性、安全、成本。</li>
+  <li><strong>编排层协议抽象与拓扑试验</strong>：避免过早绑定，评估切换成本、失败传播、调试能力。</li>
+  <li><strong>生产级护栏/审计体系</strong>：设预算、断路器、白名单、审计日志，度量异常阻断与追溯。</li>
+</ol>
+
+<h2 id="未解与深层问题">未解与深层问题</h2>
+
+<ul>
+  <li><strong>Agentic RAG收益拐点</strong>：在何种任务复杂度、时延/成本约束下，Agentic RAG超越传统RAG？判定准则能否标准化？</li>
+  <li><strong>对齐方法性价比</strong>：RLHF/DPO/GRPO等在带工具Agent场景的算力消耗、数据需求、行为稳定性如何分层？是否有数据规模相位策略？</li>
+  <li><strong>协议化与审计友好</strong>：MCP/A2A如何走向跨厂商互通？强监管行业多Agent轨迹需哪些合规要素（身份、权限、因果链、责任划分）？</li>
+</ul>
+
+<h2 id="横向对比与真实挑战">横向对比与真实挑战</h2>
+
+<p>与单体大模型堆参路线相比，全栈、协议化、压缩与多 Agent 协同在同等算力下可提升系统吞吐与可靠性，但带来工程复杂度、观测与回滚体系新故障面。落地难点还在于：</p>
+<ul>
+  <li>工具/数据平台需更标准接口与权限控制，降低接入门槛但面临“同质化”压力。</li>
+  <li>跨 Agent 责任切分与数据边界治理，增加合规工作量。</li>
+  <li>算力供给与交付周期直接影响上线节奏，推理密集型业务需优先压缩与优化。</li>
+</ul>
+
+<h2 id="结语">结语</h2>
+
+<p>《The Hitchhiker’s Guide to Agentic AI》为工程团队提供了协同架构、协议化编排、评测闭环的全栈参考，但缺乏实证对比与标准化路径。建议优先围绕算力/成本约束、协议抽象、评测闭环、审计治理做可复现工程实验，并持续关注协议化标准、对齐方法性价比、Agentic RAG拐点等深层问题。</p>]]></content><author><name></name></author><category term="AI" /><category term="AI" /><category term="GitHub Copilot" /><summary type="html"><![CDATA[《The Hitchhiker's Guide to Agentic AI》提出端到端系统协同设计理念，强调算力、协议标准与评测闭环。本文基于原文与行业背景，深入剖析其全栈架构、协议化趋势、落地挑战及工程建议，明确边界与未解问题。]]></summary></entry><entry><title type="html">ToT推理策略的算力非弹性本质及自适应工程挑战深析</title><link href="http://zouyx.github.io/posts/2026/06/24/tot-budget-inelasticity.html" rel="alternate" type="text/html" title="ToT推理策略的算力非弹性本质及自适应工程挑战深析" /><published>2026-06-24T00:00:00+08:00</published><updated>2026-06-24T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2026/06/24/ai-tot-budget-inelasticity</id><content type="html" xml:base="http://zouyx.github.io/posts/2026/06/24/tot-budget-inelasticity.html"><![CDATA[<blockquote>
   <p>本文由 GitHub Actions 自动抓取热门 AI 话题，并使用“先研究、再写作、后审校”的多阶段流程生成初稿。</p>
 
   <p>热点来源：<a href="https://arxiv.org/abs/2606.20599">arXiv</a> · 发布时间：2026-06-23 04:00:00 UTC
@@ -632,45 +733,4 @@
 
 <p>避免在2026年毕业演讲中提及AI，既是对当前AI话题敏感性的回应，也提示我们需更成熟理性的态度来面对这一科技变革。工程师和教育者应共同推动公众理解和技术责任，构建开放、健康的AI讨论环境。</p>
 
-<p>AI不仅是技术创新的象征，更是影响深远的社会现象。我们既不能忽视其重要性，也需警惕盲目跟风与恐慌，才能更好地驾驭这场技术浪潮。</p>]]></content><author><name></name></author><category term="AI" /><category term="AI" /><category term="Google News" /><category term="GitHub Copilot" /><summary type="html"><![CDATA[近期NPR报道建议2026年毕业典礼演讲者避免提及人工智能，引发对AI话题在公共议程中地位的深度思考。]]></summary></entry><entry><title type="html">前沿人工智能对话的拓展与深度思考</title><link href="http://zouyx.github.io/posts/2026/05/20/frontier-ai-conversation.html" rel="alternate" type="text/html" title="前沿人工智能对话的拓展与深度思考" /><published>2026-05-20T00:00:00+08:00</published><updated>2026-05-20T00:00:00+08:00</updated><id>http://zouyx.github.io/posts/2026/05/20/ai-frontier-ai-conversation</id><content type="html" xml:base="http://zouyx.github.io/posts/2026/05/20/frontier-ai-conversation.html"><![CDATA[<blockquote>
-  <p>本文由 GitHub Actions 自动抓取 Google News 热门 AI 话题，并调用 GitHub Copilot / GitHub Models 生成初稿。</p>
-
-  <p>热点来源：<a href="https://news.google.com/rss/articles/CBMiZkFVX3lxTFBWZnZ4WlRmdGxkTGhKV2RscUp3NlZtbWZIaF9MdGQ0M0doV09TaVQ5VEhnMXE2WmpFSFlQMnBSdlJDak5EdjRhRDNja2s3WUxIcG03X29ORjl6Tmh4cFFHNjJoMzl0Zw?oc=5">Google News / Anthropic</a> · 发布时间：2026-05-19 23:36:37 UTC</p>
-</blockquote>
-
-<h2 id="事件概览">事件概览</h2>
-
-<p>2026年5月，人工智能公司Anthropic发布了题为《Widening the conversation on frontier AI》的重要声明，提出要扩大公众和行业内对前沿人工智能（frontier AI）技术的讨论范围。这不仅涉及技术本身，更聚焦于治理、伦理与社会影响层面的深度对话。</p>
-
-<p><a href="https://news.google.com/rss/articles/CBMiZkFVX3lxTFBWZnZ4WlRmdGxkTGhKV2RscUp3NlZtbWZIaF9MdGQ0M0doV09TaVQ5VEhnMXE2WmpFSFlQMnBSdlJDak5EdjRhRDNja2s3WUxIcG03X29ORjl6Tmh4cFFHNjJoMzl0Zw?oc=5">原始新闻链接</a></p>
-
-<h2 id="为什么值得关注">为什么值得关注</h2>
-
-<p>已知事实：随着人工智能能力的快速提升，其潜在风险和广泛影响成为全球关注焦点。Anthropic倡议强调，技术研发不能孤立进行，必须纳入更广泛的社会对话。</p>
-
-<p>推断/判断：这种呼吁反映出对AI黑箱效应、算法偏见和潜在滥用的持续忧虑，暗示行业内部对更透明和负责的AI开发态度的转变。</p>
-
-<h2 id="技术与产业影响">技术与产业影响</h2>
-
-<p>已知事实：前沿AI技术正推动自然语言处理、自动驾驶、医疗诊断等领域的革命。Anthropic自身也通过深度学习模型推动技术极限。</p>
-
-<p>推断/判断：通过扩大讨论范围，业界可能加速建立统一的安全标准和伦理框架，减少碎片化发展带来的风险，促进更多跨行业合作。</p>
-
-<h2 id="工程团队可以怎么做">工程团队可以怎么做</h2>
-
-<ol>
-  <li><strong>积极参与多方沟通</strong>：与政策制定者、伦理学家、社会科学家等非技术群体搭建桥梁。</li>
-  <li><strong>增强透明度</strong>：开源部分模型和数据，发布风险评估报告。</li>
-  <li><strong>强化风险管理机制</strong>：在开发每个新功能时进行安全性和公正性测试。</li>
-  <li><strong>持续学习和培训</strong>：强化团队对AI伦理与社会责任的理解。</li>
-</ol>
-
-<h2 id="风险与争议">风险与争议</h2>
-
-<p>已知事实：AI技术可能被滥用于制造假新闻、侵犯隐私或自动化失业等问题。社会层面对技术失控的恐惧依然存在。</p>
-
-<p>推断/判断：Anthropic呼吁扩大讨论，很可能是为了减少技术开发的孤岛效应，预防潜在的技术滥用或监管失控。</p>
-
-<h2 id="总结">总结</h2>
-
-<p>Anthropic通过倡导扩大对前沿人工智能的对话，强调技术进步不仅是工程问题，更是社会责任和治理挑战。对技术人员而言，积极参与多维度交流和风险控制是未来不可回避的任务。只有在全社会的共同努力下，前沿AI才能真正实现其赋能而非伤害的价值。</p>]]></content><author><name></name></author><category term="AI" /><category term="AI" /><category term="Google News" /><category term="GitHub Copilot" /><summary type="html"><![CDATA[Anthropic倡议扩大关于前沿人工智能的讨论，揭示了技术进步背后的多维挑战与机遇。]]></summary></entry></feed>
+<p>AI不仅是技术创新的象征，更是影响深远的社会现象。我们既不能忽视其重要性，也需警惕盲目跟风与恐慌，才能更好地驾驭这场技术浪潮。</p>]]></content><author><name></name></author><category term="AI" /><category term="AI" /><category term="Google News" /><category term="GitHub Copilot" /><summary type="html"><![CDATA[近期NPR报道建议2026年毕业典礼演讲者避免提及人工智能，引发对AI话题在公共议程中地位的深度思考。]]></summary></entry></feed>

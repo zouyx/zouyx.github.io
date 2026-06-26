@@ -101,6 +101,20 @@
     
     <article class="post">
 
+      <h1><a href="/posts/2017/6/24/Golang-进程无故消失.html">Golang-进程无故消失?</a></h1>
+
+      <div class="entry">
+        <p>导致进程消失原因：64位操作系统中，写一个溢出指针到内存的非指针字符（a non-pointer word of memory），导致GC的时，不能看到该溢出块，所以导致GC过早回收该块，然后就导致崩溃（目前在NaCl/amd64p32已发现该问题）。</p>
+
+      </div>
+
+      <a href="/posts/2017/6/24/Golang-进程无故消失.html" class="read-more">Read More</a>
+    </article>
+    
+  
+    
+    <article class="post">
+
       <h1><a href="/posts/2017/4/27/好书推荐-刚读完的一本书你的灯亮着吗发现问题的真正所在.html">好书推荐-刚读完的一本书-<你的灯亮着吗?发现问题的真正所在></a></h1>
 
       <div class="entry">
@@ -151,20 +165,6 @@
       </div>
 
       <a href="/posts/2016/6/21/Golang-go_tool_pprof性能监控.html" class="read-more">Read More</a>
-    </article>
-    
-  
-    
-    <article class="post">
-
-      <h1><a href="/posts/2016/5/15/Java-CurrentHashMap高并发实践探索.html">Java-CurrentHashMap高并发实践探索</a></h1>
-
-      <div class="entry">
-        <p>在高并发写（增／删）的场景下jdk1.7的CurrentHashMap会发生什么问题呢，以下会为你一一解答。</p>
-
-      </div>
-
-      <a href="/posts/2016/5/15/Java-CurrentHashMap高并发实践探索.html" class="read-more">Read More</a>
     </article>
     
   

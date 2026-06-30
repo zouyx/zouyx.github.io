@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>三阶段训练范式：长时序代理模型能力注入的技术解剖与产业抉择 – Joe Zou – 世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="将前瞻仿真与计划评估内化到同一自回归策略，三阶段训练方法在技术与产业层面带来新机遇，也引发复杂的成本与治理挑战。本文深度剖析其与传统方案的差异、落地难点及工程建议。" />
+    <meta property="og:description" content="将前瞻仿真与计划评估内化到同一自回归策略，三阶段训练方法在技术与产业层面带来新机遇，也引发复杂的成本与治理挑战。本文深度剖析其与传统方案的差异、落地难点及工程建议。" />
+    
+    <meta name="author" content="Joe Zou" />
+
+    
+    <meta property="og:title" content="三阶段训练范式：长时序代理模型能力注入的技术解剖与产业抉择" />
+    <meta property="twitter:title" content="三阶段训练范式：长时序代理模型能力注入的技术解剖与产业抉择" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="Joe Zou - 世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊" href="/feed.xml" />
+    <link rel="shortcut icon" href="/favicon.ico"/>
+    <link rel="bookmark" href="/favicon.ico"/>
+    <meta name="baidu-site-verification" content="2Mdkttrz2v" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+    <!-- Begin Jekyll SEO tag v2.9.0 -->
+<title>三阶段训练范式：长时序代理模型能力注入的技术解剖与产业抉择 | Joe Zou</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="三阶段训练范式：长时序代理模型能力注入的技术解剖与产业抉择" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="将前瞻仿真与计划评估内化到同一自回归策略，三阶段训练方法在技术与产业层面带来新机遇，也引发复杂的成本与治理挑战。本文深度剖析其与传统方案的差异、落地难点及工程建议。" />
+<meta name="twitter:description" property="og:description" content="将前瞻仿真与计划评估内化到同一自回归策略，三阶段训练方法在技术与产业层面带来新机遇，也引发复杂的成本与治理挑战。本文深度剖析其与传统方案的差异、落地难点及工程建议。" />
+<link rel="canonical" href="http://zouyx.github.io/posts/2026/06/30/agentic-training-paradigm-analysis.html" />
+<meta property="og:url" content="http://zouyx.github.io/posts/2026/06/30/agentic-training-paradigm-analysis.html" />
+<meta property="og:site_name" content="Joe Zou" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-06-30T00:00:00+08:00" />
+<meta property="article:modified_time" content="2026-06-30T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="三阶段训练范式：长时序代理模型能力注入的技术解剖与产业抉择" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2026-06-30T00:00:00+08:00","datePublished":"2026-06-30T00:00:00+08:00","description":"将前瞻仿真与计划评估内化到同一自回归策略，三阶段训练方法在技术与产业层面带来新机遇，也引发复杂的成本与治理挑战。本文深度剖析其与传统方案的差异、落地难点及工程建议。","headline":"三阶段训练范式：长时序代理模型能力注入的技术解剖与产业抉择","mainEntityOfPage":{"@type":"WebPage","@id":"http://zouyx.github.io/posts/2026/06/30/agentic-training-paradigm-analysis.html"},"url":"http://zouyx.github.io/posts/2026/06/30/agentic-training-paradigm-analysis.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+    <!-- Google Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-115938575-1', 'auto');
+	ga('send', 'pageview', { 'page': location.pathname + location.search + location.hash});
+	ga('set', 'anonymizeIp', true);
+    </script>
+    <!-- End Google Analytics -->
+    </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="https://avatars.githubusercontent.com/u/3828072?v=4&s=400" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">Joe Zou</a></h1>
+            <p class="site-description">世界不会在意你的自尊,人们看到的只是你的成就,在你没有成功以前,切勿过分强调自尊</p>
+          </div>
+
+          <nav>
+            
+              <a href="/" title="Go to Blogs">Blogs</a>
+            
+              <a href="/projects" title="Go to Projects">Projects</a>
+            
+              <a href="/about" title="Go to About">About</a>
+            
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>三阶段训练范式：长时序代理模型能力注入的技术解剖与产业抉择</h1>
+
+  <div class="entry">
+    <blockquote>
+  <p>本文由 GitHub Actions 自动抓取热门 AI 话题，并使用“先研究、再写作、后审校”的多阶段流程生成初稿。</p>
+
+  <p>热点来源：<a href="https://arxiv.org/abs/2606.27483">arXiv</a> · 发布时间：2026-06-29 04:00:00 UTC
+关联报道数：0 · 使用模型：research=openai/gpt-5, writing=openai/gpt-4.1, review=openai/gpt-4.1</p>
+</blockquote>
+
+<h1 id="从格式能力差距到三阶段训练内化前瞻仿真与计划评估的新范式">从“格式—能力差距”到三阶段训练：内化前瞻仿真与计划评估的新范式</h1>
+
+<p><a href="https://arxiv.org/abs/2606.27483">主新闻链接：arxiv.org/abs/2606.27483</a></p>
+
+<h2 id="技术切入自回归模型如何内化规划能力">技术切入：自回归模型如何内化规划能力？</h2>
+
+<p>论文提出将面向未来的规划能力直接内化到单一自回归模型：不仅通过文本生成“前瞻状态展开”，还以文本形式呈现“计划条件成功估计”（文本版 Q 值）。这种做法允许模型在推理阶段同时给出行动序列的仿真轨迹与其成功概率，从而提升任务决策的可观测性和可审计性。</p>
+
+<p>与传统仅在后训练阶段做 SFT（监督微调）相比，作者指出存在“格式—能力差距”：只用带前瞻痕迹的数据做微调，模型往往只学到表面格式模仿，而非真正的预测锚定能力。这一技术洞察的合理性在于，仅依赖数据分布的后训练，无法充分激发模型的前瞻推理与自我规划能力。</p>
+
+<h2 id="三阶段训练范式的结构与推断">三阶段训练范式的结构与推断</h2>
+
+<p>论文提出三阶段训练范式：WM-AMT（中期能力注入）、FE-SFT（能力引出与结构化）、FC-RL（强化学习校准）。推断来看，这一“能力优先”的管线更有可能提升长时序任务的真实前瞻性与校准度，但也显著增加训练流程复杂度与算力成本。</p>
+
+<ul>
+  <li>WM-AMT阶段通过中期训练将潜在预测能力注入模型参数。</li>
+  <li>FE-SFT阶段用监督微调引出并结构化这些能力。</li>
+  <li>FC-RL阶段利用强化学习进一步校准生成仿真的效用。</li>
+</ul>
+
+<p>这一流程不仅仅是多阶段训练的叠加，更是能力注入与结构化的层次化设计。与仅做后训练SFT的传统方案相比，三阶段方法在搜索与数学推理任务上展现了更优表现（已知事实），但论文摘要未披露具体提升幅度、基线类型、数据来源与模型规模，因此泛化性和收益曲线尚不确定。</p>
+
+<h2 id="横向技术对比与实质差异">横向技术对比与实质差异</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>方案</th>
+      <th>能力注入</th>
+      <th>校准机制</th>
+      <th>可解释性</th>
+      <th>训练成本</th>
+      <th>推理成本</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>后训练SFT</td>
+      <td>弱/表面</td>
+      <td>无/有限</td>
+      <td>低</td>
+      <td>低</td>
+      <td>低</td>
+    </tr>
+    <tr>
+      <td>三阶段训练（WM-AMT/FE-SFT/FC-RL）</td>
+      <td>强/结构化</td>
+      <td>强/分层</td>
+      <td>高（文本版Q值+仿真轨迹）</td>
+      <td>高</td>
+      <td>高</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>三阶段训练范式的核心差异在于“能力被主动注入并结构化”，而非仅靠数据分布引出。尤其是“计划条件成功估计”以文本形式外显，为企业评估与决策提供透明可审计信号，有望改进长链路任务的治理。传统方案往往无法给出明晰的置信和效用指标，导致任务结果难以验证。</p>
+
+<p>但，推理阶段生成“前瞻状态展开”会导致输出token和步骤数增加，推理成本实际显著上升。工程上需设定仿真深度与频率边界，否则容易造成资源浪费和延迟积压。</p>
+
+<h2 id="工程落地挑战与产业权衡">工程落地挑战与产业权衡</h2>
+
+<h3 id="1-训练与推理成本">1. 训练与推理成本</h3>
+
+<p>多阶段训练流程放大算力供给约束、资本开支与能耗。云与算力基础设施提供者需优化调度与弹性容量，并可能催生“仿真型推理”计费与缓存产品。发布节奏也将因此变慢，需提前资源规划与分阶段里程碑。</p>
+
+<h3 id="2-可解释性与审计">2. 可解释性与审计</h3>
+
+<p>文本版Q值的外显输出，提升了决策流程的透明度与可审计性。企业落地时可将其纳入线上监测，持续比较估计值与实际成功率，形成审计报告与风险告警。但在非文本环境（如具身控制或多模态场景），校准稳定性与安全边界尚不确定，需建立更严密的审计协议和责任归属标准。</p>
+
+<h3 id="3-集成复杂度与roi">3. 集成复杂度与ROI</h3>
+
+<p>企业流程自动化与分析型应用可受益于更透明的规划与评估信号，适用于复杂检索、合规审查等长链路工作流。但集成成本上升，需在ROI、权限边界与评估指标上做更细化治理。组织层面要建立“前瞻校准”评估规范，并解决从试点到规模化的转化阻力。</p>
+
+<h2 id="工程建议与可执行方案">工程建议与可执行方案</h2>
+
+<ul>
+  <li><strong>消融实验，明确三阶段边际贡献</strong>：分别仅做后训练SFT、WM-AMT、FC-RL与完整三阶段，对搜索与数学推理任务进行对比，记录成功率与校准一致性，判明能力注入与引出的实际效果。</li>
+  <li><strong>结构化输出与仿真配额</strong>：为前瞻状态与Q值定义最大仿真深度、步长与频率，在代理框架增加配额与截断策略，记录token数与延迟，建立成本—性能曲线用于部署决策。</li>
+  <li><strong>校准与审计管线落地</strong>：计划条件成功估计纳入线上监测，周期性出具校准报告，形成审计证据与告警阈值。</li>
+  <li><strong>任务与数据分层治理</strong>：训练与评估任务按时序跨度、环境可变性与奖励可观测性分层，针对前瞻度与可预测性设计指标，避免“格式模仿”误判为“能力提升”。</li>
+  <li><strong>资源规划与节奏管理</strong>：按三阶段训练的额外资源需求，提前算力与能耗预算，拆分训练阶段为可独立复用模块，建立回滚与替代路径（如SFT-only备份）。</li>
+</ul>
+
+<h2 id="不确定点与后续追问">不确定点与后续追问</h2>
+
+<ul>
+  <li>论文摘要未披露结果提升幅度、基线类型与模型规模，外推到更广任务与更大模型的泛化性未知。</li>
+  <li>WM-AMT阶段的实现与数据构成未明，能力注入的具体方式与复现难度待验证。</li>
+  <li>文本版Q值在复杂场景（具身、合规、交易）下的校准和安全边界尚无证据，需实验与协议补充。</li>
+</ul>
+
+<h2 id="进一步深挖的问题">进一步深挖的问题</h2>
+
+<ol>
+  <li>如何量化“真实的预测锚定”而非“对前瞻格式的模仿”？哪些证据能判定能力被注入而非仅被引出？</li>
+  <li>文本版Q值在外部副作用场景中如何保持稳定校准？需哪些安全边界与审计协议？</li>
+  <li>三阶段训练的收益—成本曲线如何随规模和任务复杂度变化？是否存在报酬递减或阶段性瓶颈？</li>
+</ol>
+
+<h2 id="结语">结语</h2>
+
+<p>三阶段训练范式为长时序代理模型带来能力注入、校准与可解释性的新突破，但在工程落地与产业化过程中，训练与推理成本、可审计性、集成难度和安全治理都需细致权衡与实证推动。工程建议需聚焦消融、结构化输出、校准管线和资源规划，才能支撑新范式从研究走向规模应用。</p>
+
+  </div>
+
+  <div>
+    <img src="/images/code.jpg"/>
+  </div>
+
+  <div class="date">
+    Written on June 30, 2026
+  </div>
+
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+<a href="mailto:joezou@apache.org"><i class="svg-icon email"></i></a>
+
+
+<a href="https://github.com/zouyx"><i class="svg-icon github"></i></a>
+
+<a href="https://www.linkedin.com/in/joe-zou-829b2981"><i class="svg-icon linkedin"></i></a>
+
+<a href="/feed.xml"><i class="svg-icon rss"></i></a>
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>
